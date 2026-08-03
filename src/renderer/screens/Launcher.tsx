@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { MAX_PROFILES, MIN_PROFILES } from '@shared/constants';
 import type { Profile } from '@shared/types';
 import { gridShapeFor } from '../lib/grid';
+import iconUrl from '../../../assets/multiframe-icon.svg';
 
 /** Ф-1.1, Ф-1.2 — екран старту: кількість профілів і відновлення сесії. */
 export function Launcher({ onLaunched }: { onLaunched: (p: Profile[]) => void }): JSX.Element {
@@ -32,8 +33,16 @@ export function Launcher({ onLaunched }: { onLaunched: (p: Profile[]) => void })
   };
 
   return (
-    <div style={{ display: 'grid', placeItems: 'center', height: '100vh', padding: 24 }}>
-      <div style={{ maxWidth: 560, width: '100%' }}>
+    <div style={{ position: 'relative', display: 'grid', placeItems: 'center', height: '100vh', padding: 24 }}>
+      {/* Рішення користувача 2026-08-03 — логотип водяним знаком позаду
+          вибору кількості профілів. pointer-events:none і z-index:0
+          (theme.css, .launcher-watermark) — суто декоративний, не заважає
+          кліку по кнопках над ним. */}
+      <div className="launcher-watermark">
+        <img src={iconUrl} alt="" />
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, width: '100%' }}>
         <h1 style={{ margin: '0 0 8px', fontSize: 26 }}>{t('launcher.title')}</h1>
         <p style={{ color: 'var(--text-dim)', marginTop: 0 }}>{t('launcher.subtitle')}</p>
 

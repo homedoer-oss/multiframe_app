@@ -55,3 +55,64 @@ button {
 }
 button:hover { background: var(--accent); }
 button:disabled { opacity: .45; cursor: default; }
+
+/* Логотип на старті — з'являється й поступово зникає (App.tsx, Splash.tsx). */
+@keyframes splash-fade {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  /* НФ-1.1 — суто декоративний, не має красти клік у нетерплячого
+     користувача (чи затримувати cold-start тест: Playwright чекає, доки
+     ціль кліку не перестане бути затуленою чимось непрозорим — з
+     непрозорим спленем без цього клік по «Open workspace» блокувався б
+     на більшу частину 1.8с анімації, а не лише візуально). */
+  pointer-events: none;
+  animation: splash-fade 1.8s ease-in-out forwards;
+}
+.splash-mark {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.splash-wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.splash-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -1px;
+}
+.splash-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 6px;
+}
+
+/* Логотип-водяний знак на екрані вибору кількості профілів (Launcher.tsx). */
+.launcher-watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.launcher-watermark img {
+  width: min(70vw, 640px);
+  height: auto;
+  opacity: .05;
+}

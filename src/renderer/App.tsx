@@ -4,6 +4,7 @@ import type { AppSettings, Profile, UpdateStatus } from '@shared/types';
 import { Launcher } from './screens/Launcher';
 import { Workspace } from './screens/Workspace';
 import { Settings } from './screens/Settings';
+import { Splash } from './components/Splash';
 
 export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.Element {
   const { t } = useTranslation();
@@ -11,6 +12,10 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>({ state: 'idle' });
+  // Рішення користувача 2026-08-03 — логотип на старті. Прапорець живе тут
+  // (не всередині Splash), щоб оверлей можна було показати НАД будь-яким
+  // екраном (Launcher чи вже відкрита робоча область), не дублюючи розгалуження.
+  const [showSplash, setShowSplash] = useState(true);
 
   // Ф-7.1 — Ctrl+, («відкриття налаштувань профілю»); гаряча клавіша
   // працює навіть якщо фокус усередині сторінки якогось фрейму.
@@ -30,7 +35,29 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
     document.documentElement.dataset.theme = settings.theme;
   }, [settings.theme]);
 
-  if (!profiles) return <Launcher onLaunched={setProfiles} />;
+  // §5.9 — той самий фікс, що й у Settings.tsx: WebContentsView лежать НАД
+  // оболонкою за z. Поки показано Launcher (profiles === null), робочої
+  // області в main ще не існує — жодного фрейму немає, ховати нічого.
+  // Але якщо користувач встигає клікнути «Відкрити робочу область» до
+  // завершення сплеша (Ф-1.5 відновлення сесії відкриває вкладки одразу),
+  // реальний WebContentsView міг би накрити сплеш точно як колись накривав
+  // кнопку Settings — тож ховаємо фрейми на час сплеша й тут.
+  useEffect(() => {
+    if (!profiles || !showSplash) return;
+    void window.multiframe.invoke('workspace:setFramesVisible', { visible: false }).catch(() => {});
+    return () => {
+      void window.multiframe.invoke('workspace:setFramesVisible', { visible: true }).catch(() => {});
+    };
+  }, [profiles, showSplash]);
+
+  if (!profiles) {
+    return (
+      <>
+        <Launcher onLaunched={setProfiles} />
+        {showSplash && <Splash onDone={() => setShowSplash(false)} />}
+      </>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -82,6 +109,8 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
           onClose={() => setSettingsOpen(false)}
         />
       )}
+
+      {showSplash && <Splash onDone={() => setShowSplash(false)} />}
     </div>
   );
 }

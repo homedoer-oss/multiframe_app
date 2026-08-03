@@ -30,6 +30,12 @@ extraResources:
     to: docs/EULA.uk.md
 
 win:
+  # 2026-08-03, рішення користувача — піктограма з assets/multiframe-icon.svg,
+  # згенерована в build/icon.ico (`.ico` потрібен Windows, SVG напряму
+  # electron-builder не приймає). directories.buildResources: build уже
+  # робить це місце типовим для electron-builder, icon: тут — явно, без
+  # покладання на дефолтне ім'я файла.
+  icon: build/icon.ico
   # НФ-3.2/користувач 2026-08-03: portable-версія додана поряд з інсталятором.
   # artifactName свій у кожного — інакше обидва таргети claim того самого
   # імені файла (${ext} для обох 'exe') і другий перезаписав би перший.
