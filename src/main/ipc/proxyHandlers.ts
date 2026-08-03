@@ -1,5 +1,5 @@
 import type { AssignResult, IpcInvokeMap } from '@shared/ipc';
-import { PROXY_PROVIDERS, PROJECT_WALLETS } from '@shared/constants';
+import { PROXY_PROVIDERS, PROJECT_WALLETS, SITE_URL } from '@shared/constants';
 import { log } from '../logging/logger';
 import { updateProfile } from '../profile/ProfileManager';
 import { retargetRegion } from '../profile/identity';
@@ -119,6 +119,7 @@ export function buildProxyHandlers(
 
     'support:wallets': () => ({
       project: PROJECT_WALLETS,
+      siteUrl: SITE_URL,
     }),
   };
 }

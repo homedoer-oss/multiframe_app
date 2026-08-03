@@ -93,6 +93,7 @@
   "assign.refused.storage_not_empty": "Das Profil enthält bereits Sitzungsdaten. Ein Testproxy kann nur einem leeren Profil zugewiesen werden.",
   "assign.refused.credentials_unavailable": "Der geschützte Windows-Speicher ist nicht verfügbar, das Passwort kann nicht gesichert werden.",
   "support.copy": "Kopieren",
+  "support.website": "{url} besuchen",
   "settings.tab.selfCheck": "Selbstprüfung",
   "selfcheck.run": "Prüfung starten",
   "selfcheck.pick": "Profil",

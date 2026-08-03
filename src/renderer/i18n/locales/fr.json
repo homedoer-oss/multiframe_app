@@ -93,6 +93,7 @@
   "assign.refused.storage_not_empty": "Le profil contient déjà des données de session. Un proxy de test ne peut être attribué qu'à un profil vide.",
   "assign.refused.credentials_unavailable": "Le stockage protégé de Windows est indisponible, le mot de passe ne peut pas être enregistré.",
   "support.copy": "Copier",
+  "support.website": "Visiter {url}",
   "settings.tab.selfCheck": "Autocontrôle",
   "selfcheck.run": "Lancer le contrôle",
   "selfcheck.pick": "Profil",

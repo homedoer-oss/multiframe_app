@@ -25,7 +25,15 @@
 
 ---
 
-## Документація
+## Документація користувача
+
+| Документ | Зміст |
+|---|---|
+| [`docs/USER-GUIDE.uk.md`](docs/USER-GUIDE.uk.md) · [en](docs/USER-GUIDE.en.md) | Інструкція користувача |
+| [`docs/PRIVACY-POLICY.uk.md`](docs/PRIVACY-POLICY.uk.md) · [en](docs/PRIVACY-POLICY.en.md) | Політика конфіденційності |
+| [`docs/EULA.uk.md`](docs/EULA.uk.md) · [en](docs/EULA.en.md) | Ліцензійна угода користувача |
+
+## Документація розробки
 
 | Документ | Зміст |
 |---|---|

@@ -10,14 +10,30 @@ files:
   - out/**/*
   - package.json
 
-# Ф-12.3 — перелік ліцензій сторонніх компонентів у теці встановлення
+# Ф-12.3 — перелік ліцензій сторонніх компонентів у теці встановлення.
+# Користувацька документація (2026-08-03) — той самий принцип: постачається
+# разом із застосунком, не лише в git-репозиторії вихідного коду.
 extraResources:
   - from: THIRD-PARTY-LICENSES.txt
     to: THIRD-PARTY-LICENSES.txt
+  - from: docs/USER-GUIDE.en.md
+    to: docs/USER-GUIDE.en.md
+  - from: docs/USER-GUIDE.uk.md
+    to: docs/USER-GUIDE.uk.md
+  - from: docs/PRIVACY-POLICY.en.md
+    to: docs/PRIVACY-POLICY.en.md
+  - from: docs/PRIVACY-POLICY.uk.md
+    to: docs/PRIVACY-POLICY.uk.md
+  - from: docs/EULA.en.md
+    to: docs/EULA.en.md
+  - from: docs/EULA.uk.md
+    to: docs/EULA.uk.md
 
 win:
-  target: nsis
-  artifactName: ${productName}-${version}-setup.${ext}
+  # НФ-3.2/користувач 2026-08-03: portable-версія додана поряд з інсталятором.
+  # artifactName свій у кожного — інакше обидва таргети claim того самого
+  # імені файла (${ext} для обох 'exe') і другий перезаписав би перший.
+  target: [nsis, portable]
   # НФ-3.1 — підпис коду. Репутацію SmartScreen треба накопичувати
   # з першої внутрішньої збірки, а не з релізу.
   signingHashAlgorithms: [sha256]
@@ -30,12 +46,16 @@ win:
   verifyUpdateCodeSignature: false
 
 nsis:
+  artifactName: ${productName}-${version}-setup.${ext}
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
   # Ф-8.19 — інсталятор локалізується тими самими п'ятьма мовами
   displayLanguageSelector: true
   installerLanguages: [en_US, uk_UA, de_DE, es_ES, fr_FR]
+
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
 
 # НФ-3.2 — GitHub Releases цього репозиторію, рішення користувача
 # 2026-08-03. `electron-updater` читає ці дані з `app-update.yml`,

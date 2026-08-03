@@ -36,7 +36,13 @@ export async function launchApp(
 
 export async function cleanup(app: ElectronApplication, userDataDir: string): Promise<void> {
   await app.close();
-  rmSync(userDataDir, { recursive: true, force: true });
+  // Знайдено 2026-08-03 через реальний прогін CI (Windows-раннер), не
+  // локально: `app.close()` повертається до того, як ОС фактично звільнила
+  // всі файли дочірніх процесів (мережевий сервіс Electron тримає файл
+  // у Network/ ще якийсь час) — негайний rmSync іноді ловить EBUSY.
+  // maxRetries/retryDelay — вбудована в Node підтримка саме такої гонки
+  // на Windows, а не довільний костиль.
+  rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
 
 export function serveOnce(text: string): Promise<{ server: Server; port: number }> {

@@ -81,9 +81,16 @@ jobs:
       # RECOMMENDATIONS §2 — Runtime.enable виявляється зі сторінки.
       # Випадково доданий виклик має ламати збірку.
       - name: Пошук Runtime.enable поза CdpSession
+        # Знайдено 2026-08-03: ця джоба падала на КОЖНОМУ прогоні з самого
+        # початку (ніхто не перевіряв реальний CI до цього дня) — греп
+        # ловив пояснювальні коментарі («Runtime.enable виявляється зі
+        # сторінки») як порушення, не лише реальний виклик. Другий grep
+        # відсіює рядки, де збіг — усередині коментаря (`//` чи `*` одразу
+        # після `шлях:номер_рядка:`).
         run: |
           if grep -rn "Runtime\.enable\|'Runtime\." src/ --include='*.ts' --include='*.tsx' \
-             | grep -v 'src/main/cdp/CdpSession.ts'; then
+             | grep -v 'src/main/cdp/CdpSession.ts' \
+             | grep -vE '^[^:]+:[0-9]+: *(//|\*)'; then
             echo "::error::Знайдено звернення до CDP-домену Runtime. Див. RECOMMENDATIONS.md §2."
             exit 1
           fi

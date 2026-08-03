@@ -93,6 +93,7 @@
   "assign.refused.storage_not_empty": "El perfil ya contiene datos de sesión. Un proxy de prueba solo puede asignarse a un perfil vacío.",
   "assign.refused.credentials_unavailable": "El almacenamiento protegido de Windows no está disponible, por lo que no se puede guardar la contraseña.",
   "support.copy": "Copiar",
+  "support.website": "Visitar {url}",
   "settings.tab.selfCheck": "Autocomprobación",
   "selfcheck.run": "Ejecutar comprobación",
   "selfcheck.pick": "Perfil",

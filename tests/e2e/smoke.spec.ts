@@ -114,6 +114,7 @@ test('closing the window with a loaded tab does not throw (Frame.dispose race, S
     expect(log).not.toContain('Object has been destroyed');
   } finally {
     server.close();
-    rmSync(userDataDir, { recursive: true, force: true });
+    // Той самий Windows-CI race, що й helpers.ts cleanup() (розділ 9 STATE.md).
+    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
 });

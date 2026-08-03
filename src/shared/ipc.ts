@@ -129,8 +129,8 @@ export interface IpcInvokeMap {
   'profile:duplicate': { req: { id: string }; res: Profile };
   'profile:delete': { req: { id: string }; res: void };
 
-  /** Ф-13.19 / Ф-13.20 — адреси беруться з коду, ніколи з мережі. */
-  'support:wallets': { req: void; res: { project: readonly DonationAddress[] } };
+  /** Ф-13.19 / Ф-13.22 — адреси й офіційний сайт беруться з коду, ніколи з мережі. */
+  'support:wallets': { req: void; res: { project: readonly DonationAddress[]; siteUrl: string } };
 
   'shell:openExternal': { req: { url: string }; res: void };
 }

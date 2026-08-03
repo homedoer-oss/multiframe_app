@@ -4,6 +4,7 @@ import type { DonationAddress } from '@shared/constants';
 
 interface Wallets {
   project: readonly DonationAddress[];
+  siteUrl: string;
 }
 
 /**
@@ -65,6 +66,14 @@ export function SupportPanel(): JSX.Element {
 
       <h3 style={{ marginTop: 0, fontSize: 14 }}>{t('support.project')}</h3>
       {list(wallets.project)}
+
+      {/* Ф-13.22 — офіційний сайт, відкривається лише в системному браузері (Ф-13.24) */}
+      <button
+        onClick={() => void window.multiframe.invoke('shell:openExternal', { url: wallets.siteUrl })}
+        style={{ fontSize: 12, padding: '6px 12px', marginTop: 4, background: 'var(--surface)' }}
+      >
+        {t('support.website', { url: wallets.siteUrl })} ↗
+      </button>
 
       {copied && (
         <div style={{ position: 'sticky', bottom: 0, marginTop: 12, padding: 10,

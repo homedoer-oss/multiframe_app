@@ -19,6 +19,9 @@ test('Support panel shows only the project donation section', async () => {
     await expect(window.getByText('bc1q6zwx4q9andwpe08rgdhgu8qj8angt5gf9gws74')).toBeVisible();
     await expect(window.getByText('Donate to the Armed Forces of Ukraine')).toHaveCount(0);
     await expect(window.getByText(/67th Separate Mechanized Brigade/)).toHaveCount(0);
+
+    // Ф-13.22/13.24 — офіційний сайт, лише через shell:openExternal.
+    await expect(window.getByRole('button', { name: /multiframe\.app/ })).toBeVisible();
   } finally {
     await cleanup(app, userDataDir);
   }

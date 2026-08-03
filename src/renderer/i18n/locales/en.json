@@ -93,6 +93,7 @@
   "assign.refused.storage_not_empty": "This profile already holds session data. A test proxy can only be assigned to an empty profile.",
   "assign.refused.credentials_unavailable": "Windows secure storage is unavailable, so the password cannot be saved.",
   "support.copy": "Copy",
+  "support.website": "Visit {url}",
   "settings.tab.selfCheck": "Self-check",
   "selfcheck.run": "Run check",
   "selfcheck.pick": "Profile",

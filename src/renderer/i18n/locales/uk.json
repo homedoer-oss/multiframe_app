@@ -93,6 +93,7 @@
   "assign.refused.storage_not_empty": "Профіль уже містить дані сесії. Тестовий проксі можна призначити лише порожньому профілю.",
   "assign.refused.credentials_unavailable": "Захищене сховище Windows недоступне, тому пароль не може бути збережений.",
   "support.copy": "Копіювати",
+  "support.website": "Відкрити {url}",
   "settings.tab.selfCheck": "Самоперевірка",
   "selfcheck.run": "Запустити перевірку",
   "selfcheck.pick": "Профіль",
