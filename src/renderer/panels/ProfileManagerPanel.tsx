@@ -1,7 +1,9 @@
 import { useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PROFILE_COLOR_PALETTE } from '@shared/constants';
-import type { Profile } from '@shared/types';
+import type { AssignResult } from '@shared/ipc';
+import type { Profile, ProxyConfig, ProxyMode, ProxyQuality } from '@shared/types';
+import { QualityCard } from '../components/QualityCard';
 
 /** Ф-6.1 / Ф-6.2 — ім'я, кольорова мітка, дублювання, скидання даних, видалення. */
 
@@ -52,6 +54,68 @@ export function ProfileManagerPanel({
   const [restoreBusy, setRestoreBusy] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [restoreSuccess, setRestoreSuccess] = useState<string | null>(null);
+
+  // Ф-10.15/Ф-10.16 backend (`proxy:evaluate`/`proxy:assign`) вже готовий
+  // і покритий тестами — раніше в renderer просто не було ЖОДНОЇ UI, що
+  // його викликає (STATE.md §7.4). Ручний ввід — базовий сценарій, який
+  // має існувати незалежно від вкладки безкоштовних проксі.
+  type ProxyDraft = { mode: ProxyMode; host: string; port: string; username: string; password: string };
+  const [proxyOpenId, setProxyOpenId] = useState<string | null>(null);
+  const [proxyDrafts, setProxyDrafts] = useState<Record<string, ProxyDraft>>({});
+  const [proxyTest, setProxyTest] = useState<Record<string, { quality: ProxyQuality } | { error: true } | undefined>>({});
+  const [proxyTesting, setProxyTesting] = useState<string | null>(null);
+  const [proxyAssignMsg, setProxyAssignMsg] = useState<Record<string, AssignResult>>({});
+
+  const draftFor = (p: Profile): ProxyDraft =>
+    proxyDrafts[p.id] ?? {
+      mode: p.proxy.mode,
+      host: p.proxy.host,
+      port: p.proxy.port ? String(p.proxy.port) : '',
+      username: p.proxy.username ?? '',
+      password: '',
+    };
+
+  const setDraft = (p: Profile, patch: Partial<ProxyDraft>): void => {
+    setProxyDrafts((d) => ({ ...d, [p.id]: { ...draftFor(p), ...patch } }));
+  };
+
+  const buildConfig = (p: Profile): ProxyConfig => {
+    const d = draftFor(p);
+    return {
+      mode: d.mode,
+      host: d.mode === 'direct' ? '' : d.host.trim(),
+      port: d.mode === 'direct' ? 0 : Number(d.port) || 0,
+      username: d.mode === 'direct' || !d.username.trim() ? undefined : d.username.trim(),
+      hasPassword: d.password.length > 0 || p.proxy.hasPassword,
+      class: 'manual',
+    };
+  };
+
+  const testProxy = (p: Profile): void => {
+    setProxyTesting(p.id);
+    setProxyTest((t) => ({ ...t, [p.id]: undefined }));
+    void window.multiframe.invoke('proxy:evaluate', { config: buildConfig(p) })
+      .then((quality) => {
+        setProxyTest((t) => ({ ...t, [p.id]: quality ? { quality } : { error: true } }));
+      })
+      .finally(() => setProxyTesting(null));
+  };
+
+  const assignProxy = (p: Profile): void => {
+    const d = draftFor(p);
+    void withBusy(p.id, async () => {
+      const result = await window.multiframe.invoke('proxy:assign', {
+        profileId: p.id,
+        config: buildConfig(p),
+        password: d.password || undefined,
+      });
+      setProxyAssignMsg((m) => ({ ...m, [p.id]: result }));
+      if (result.ok) {
+        setDraft(p, { password: '' });
+        await refresh();
+      }
+    });
+  };
 
   const refresh = async (): Promise<void> => {
     onProfilesChange(await window.multiframe.invoke('profile:list', undefined));
@@ -282,10 +346,104 @@ export function ProfileManagerPanel({
               >
                 {t('profiles.backup')}
               </button>
+              <button
+                disabled={busyId === p.id}
+                onClick={() => setProxyOpenId(proxyOpenId === p.id ? null : p.id)}
+                style={actionBtn}
+              >
+                {t('profiles.proxy')} — {p.proxy.mode === 'direct' ? t('proxy.direct') : `${p.proxy.host}:${p.proxy.port}`}
+              </button>
               <button disabled={busyId === p.id} onClick={() => remove(p)} style={{ ...actionBtn, background: 'var(--error)' }}>
                 {t('profiles.delete')}
               </button>
             </div>
+
+            {proxyOpenId === p.id && (() => {
+              const draft = draftFor(p);
+              const test = proxyTest[p.id];
+              const assignMsg = proxyAssignMsg[p.id];
+              return (
+                <div style={{ marginTop: 10, padding: 10, background: 'var(--bg)', borderRadius: 4 }}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <select
+                      value={draft.mode}
+                      onChange={(e) => setDraft(p, { mode: e.target.value as ProxyMode })}
+                      style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)',
+                        borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                    >
+                      <option value="direct">{t('proxy.direct')}</option>
+                      <option value="https">{t('proxy.https')}</option>
+                      <option value="socks5">{t('proxy.socks5')}</option>
+                    </select>
+
+                    {draft.mode !== 'direct' && (
+                      <>
+                        <input
+                          value={draft.host}
+                          onChange={(e) => setDraft(p, { host: e.target.value })}
+                          placeholder={t('profiles.proxy.host')}
+                          style={{ width: 140, background: 'var(--surface)', color: 'var(--text)',
+                            border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                        />
+                        <input
+                          value={draft.port}
+                          onChange={(e) => setDraft(p, { port: e.target.value.replace(/\D/g, '') })}
+                          placeholder={t('profiles.proxy.port')}
+                          style={{ width: 70, background: 'var(--surface)', color: 'var(--text)',
+                            border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                        />
+                        <input
+                          value={draft.username}
+                          onChange={(e) => setDraft(p, { username: e.target.value })}
+                          placeholder={t('profiles.proxy.username')}
+                          style={{ width: 110, background: 'var(--surface)', color: 'var(--text)',
+                            border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                        />
+                        <input
+                          type="password"
+                          value={draft.password}
+                          onChange={(e) => setDraft(p, { password: e.target.value })}
+                          placeholder={p.proxy.hasPassword ? t('profiles.proxy.passwordSet') : t('profiles.proxy.password')}
+                          style={{ width: 110, background: 'var(--surface)', color: 'var(--text)',
+                            border: '1px solid var(--border)', borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                        />
+                      </>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {draft.mode !== 'direct' && (
+                      <button
+                        disabled={proxyTesting === p.id || !draft.host.trim() || !draft.port}
+                        onClick={() => testProxy(p)}
+                        style={{ fontSize: 11, padding: '4px 10px' }}
+                      >
+                        {proxyTesting === p.id ? t('profiles.proxy.testing') : t('profiles.proxy.test')}
+                      </button>
+                    )}
+                    <button
+                      disabled={busyId === p.id || (draft.mode !== 'direct' && (!draft.host.trim() || !draft.port))}
+                      onClick={() => assignProxy(p)}
+                      style={{ fontSize: 11, padding: '4px 10px' }}
+                    >
+                      {t('profiles.proxy.assign')}
+                    </button>
+                  </div>
+
+                  {test && 'quality' in test && (
+                    <div style={{ marginTop: 8 }}><QualityCard quality={test.quality} /></div>
+                  )}
+                  {test && 'error' in test && (
+                    <div style={{ fontSize: 11, color: 'var(--error)', marginTop: 8 }}>{t('profiles.proxy.testFailed')}</div>
+                  )}
+                  {assignMsg && (
+                    <div style={{ fontSize: 11, marginTop: 8, color: assignMsg.ok ? 'var(--success)' : 'var(--error)' }}>
+                      {assignMsg.ok ? t('profiles.proxy.assigned') : t(`assign.refused.${assignMsg.reason}`)}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {backupOpenId === p.id && (
               <div style={{ marginTop: 10, padding: 10, background: 'var(--bg)', borderRadius: 4 }}>

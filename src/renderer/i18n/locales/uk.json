@@ -148,5 +148,16 @@
   "geoip.downloadError": "Не вдалося завантажити.",
   "update.downloading": "Завантаження оновлення… {percent}%",
   "update.restartButton": "Перезапустити для оновлення",
-  "update.restartHint": "Версія {version} готова. Перезапускає застосунок зараз для встановлення."
+  "update.restartHint": "Версія {version} готова. Перезапускає застосунок зараз для встановлення.",
+  "profiles.proxy": "Проксі",
+  "profiles.proxy.host": "Хост",
+  "profiles.proxy.port": "Порт",
+  "profiles.proxy.username": "Логін (необов'язково)",
+  "profiles.proxy.password": "Пароль (необов'язково)",
+  "profiles.proxy.passwordSet": "Пароль збережено — лишіть порожнім, щоб не змінювати",
+  "profiles.proxy.test": "Перевірити",
+  "profiles.proxy.testing": "Перевірка…",
+  "profiles.proxy.testFailed": "Не вдалося підключитись через цей проксі.",
+  "profiles.proxy.assign": "Призначити цьому профілю",
+  "profiles.proxy.assigned": "Призначено."
 }

@@ -148,5 +148,16 @@
   "geoip.downloadError": "Échec du téléchargement.",
   "update.downloading": "Téléchargement de la mise à jour… {percent}%",
   "update.restartButton": "Redémarrer pour mettre à jour",
-  "update.restartHint": "La version {version} est prête. Redémarre l'application maintenant pour l'installer."
+  "update.restartHint": "La version {version} est prête. Redémarre l'application maintenant pour l'installer.",
+  "profiles.proxy": "Proxy",
+  "profiles.proxy.host": "Hôte",
+  "profiles.proxy.port": "Port",
+  "profiles.proxy.username": "Identifiant (facultatif)",
+  "profiles.proxy.password": "Mot de passe (facultatif)",
+  "profiles.proxy.passwordSet": "Mot de passe enregistré — laissez vide pour le conserver",
+  "profiles.proxy.test": "Tester",
+  "profiles.proxy.testing": "Test en cours…",
+  "profiles.proxy.testFailed": "Impossible de se connecter via ce proxy.",
+  "profiles.proxy.assign": "Assigner à ce profil",
+  "profiles.proxy.assigned": "Assigné."
 }

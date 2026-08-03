@@ -148,5 +148,16 @@
   "geoip.downloadError": "Error al descargar.",
   "update.downloading": "Descargando actualización… {percent}%",
   "update.restartButton": "Reiniciar para actualizar",
-  "update.restartHint": "La versión {version} está lista. Reinicia la aplicación ahora para instalarla."
+  "update.restartHint": "La versión {version} está lista. Reinicia la aplicación ahora para instalarla.",
+  "profiles.proxy": "Proxy",
+  "profiles.proxy.host": "Host",
+  "profiles.proxy.port": "Puerto",
+  "profiles.proxy.username": "Usuario (opcional)",
+  "profiles.proxy.password": "Contraseña (opcional)",
+  "profiles.proxy.passwordSet": "Contraseña guardada — deje en blanco para conservarla",
+  "profiles.proxy.test": "Probar",
+  "profiles.proxy.testing": "Probando…",
+  "profiles.proxy.testFailed": "No se pudo conectar a través de este proxy.",
+  "profiles.proxy.assign": "Asignar a este perfil",
+  "profiles.proxy.assigned": "Asignado."
 }

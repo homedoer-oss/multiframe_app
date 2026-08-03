@@ -148,5 +148,16 @@
   "geoip.downloadError": "Download failed.",
   "update.downloading": "Downloading update… {percent}%",
   "update.restartButton": "Restart to update",
-  "update.restartHint": "Version {version} is ready. Restarts the app now to install it."
+  "update.restartHint": "Version {version} is ready. Restarts the app now to install it.",
+  "profiles.proxy": "Proxy",
+  "profiles.proxy.host": "Host",
+  "profiles.proxy.port": "Port",
+  "profiles.proxy.username": "Username (optional)",
+  "profiles.proxy.password": "Password (optional)",
+  "profiles.proxy.passwordSet": "Password saved — leave blank to keep it",
+  "profiles.proxy.test": "Test",
+  "profiles.proxy.testing": "Testing…",
+  "profiles.proxy.testFailed": "Could not connect through this proxy.",
+  "profiles.proxy.assign": "Assign to this profile",
+  "profiles.proxy.assigned": "Assigned."
 }

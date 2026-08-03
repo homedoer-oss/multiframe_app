@@ -7,6 +7,8 @@ import { Workspace } from './window/Workspace';
 import { installCertificateHandler } from './security/certificates';
 import { installProxyAuthHandler } from './proxy/ProxyManager';
 import { createMaxMindProviderIfAvailable, setGeoAsnProvider } from './proxy/geoip';
+import { detectRealIp } from './proxy/checker';
+import { setRealIp } from './ipc/proxyHandlers';
 
 let window: BaseWindow | null = null;
 let workspace: Workspace | null = null;
@@ -104,6 +106,14 @@ app.whenReady().then(() => {
   );
   // Ф-3.2 — автентифікація HTTP/HTTPS-проксі через подію login.
   installProxyAuthHandler((profileId) => workspace?.profileOf(profileId));
+  // Ф-10.9 — реальна адреса потрібна для визначення прозорих проксі
+  // (Ф-10.12). Раніше НІКОЛИ не встановлювалась — setRealIp() існував,
+  // але ніхто його не викликав, тож пряме порівняння адрес у
+  // detectAnonymity() було мертвим кодом від самого початку.
+  void detectRealIp().then((ip) => {
+    setRealIp(ip);
+    if (!ip) log.warn({ code: 'proxy.real_ip_unknown' });
+  });
   // Ф-4.6 — база вже завантажена раніше (geoip:downloadDatabases) з
   // попереднього запуску: активуємо без мережевого запиту при старті.
   const maxmind = createMaxMindProviderIfAvailable();

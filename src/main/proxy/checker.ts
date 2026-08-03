@@ -1,4 +1,5 @@
 import { connect, type Socket } from 'node:net';
+import { get } from 'node:https';
 import type { AnonymityLevel, ProxyConfig } from '@shared/types';
 import { ByteReader, CMD_CONNECT, METHOD_NOAUTH, METHOD_USERPASS, AUTH_VER, REP_OK, VER, readDestination } from './socks5';
 
@@ -142,4 +143,23 @@ export function detectAnonymity(body: string, realIp: string | null): AnonymityL
 export function extractExitIp(body: string): string | null {
   const match = body.match(/"origin"\s*:\s*"([0-9a-fA-F.:]+)/) ?? body.match(/\b(\d{1,3}(?:\.\d{1,3}){3})\b/);
   return match?.[1] ?? null;
+}
+
+/**
+ * Ф-10.9 — реальна адреса ПРЯМОГО з'єднання користувача, потрібна
+ * `detectAnonymity()` для визначення прозорих проксі (Ф-10.12): без неї
+ * спрацьовує лише резервна перевірка за заголовками (`LEAK_HEADERS`),
+ * а не пряме порівняння з фактичною адресою. Той самий ip-echo сервіс,
+ * що й `DEFAULT_PROBE`, але напряму — без SOCKS5/HTTP-проксі.
+ */
+export function detectRealIp(opts: ProbeOptions = DEFAULT_PROBE): Promise<string | null> {
+  return new Promise((resolve) => {
+    const req = get(`https://${opts.echoHost}${opts.echoPath}`, (res) => {
+      let body = '';
+      res.on('data', (chunk: Buffer) => { body += chunk.toString('utf8'); });
+      res.on('end', () => resolve(extractExitIp(body)));
+    });
+    req.on('error', () => resolve(null));
+    req.setTimeout(opts.timeoutMs, () => req.destroy());
+  });
 }
