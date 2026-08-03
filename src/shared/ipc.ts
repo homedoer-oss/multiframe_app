@@ -2,7 +2,7 @@
  * Типізований контракт IPC. Єдине джерело істини для main, preload і renderer.
  * Додавання каналу без опису тут — помилка компіляції в усіх трьох шарах.
  */
-import type { AppSettings, CellRect, FrameState, Profile, ProxyConfig, ProxyQuality } from './types';
+import type { AppSettings, CellRect, FrameState, Profile, ProxyConfig, ProxyQuality, UpdateStatus } from './types';
 import type { DonationAddress, ProxyProvider } from './constants';
 
 export interface DiscoveryProgress {
@@ -112,6 +112,11 @@ export interface IpcInvokeMap {
   'geoip:setLicenseKey': { req: { licenseKey: string }; res: { ok: boolean } };
   'geoip:downloadDatabases': { req: void; res: { ok: boolean; error?: string } };
 
+  /** НФ-3.2 — автооновлення через GitHub Releases; працює лише в упакованому застосунку. */
+  'update:getStatus': { req: void; res: UpdateStatus };
+  'update:check': { req: void; res: void };
+  'update:install': { req: void; res: void };
+
   /** Ф-4.9 — самоперевірка профілю: невідповідності, а не «бал». */
   'identity:selfCheck': { req: { profileId: string }; res: SelfCheckReport };
 
@@ -148,6 +153,8 @@ export interface IpcEventMap {
   'hotkey:zoom': { profileId: string; direction: -1 | 1 | 0 };
   /** Ф-7.1 — «відкриття налаштувань профілю» через Ctrl+,. */
   'hotkey:openSettings': void;
+  /** НФ-3.2 — стан автооновлення, для індикатора в оболонці. */
+  'update:status': UpdateStatus;
 }
 
 export type IpcInvokeChannel = keyof IpcInvokeMap;
@@ -167,6 +174,7 @@ export const IPC_INVOKE_CHANNELS = [
   'proxy:evaluate', 'proxy:assign', 'proxy:importList',
   'proxy:discoverStart', 'proxy:discoverStop', 'proxy:providers',
   'geoip:getStatus', 'geoip:setLicenseKey', 'geoip:downloadDatabases',
+  'update:getStatus', 'update:check', 'update:install',
   'support:wallets',
   'shell:openExternal',
 ] as const satisfies readonly IpcInvokeChannel[];
@@ -175,6 +183,7 @@ export const IPC_EVENT_CHANNELS = [
   'frame:state', 'frame:certificatePrompt', 'workspace:layoutInvalidated', 'app:settingsChanged',
   'proxy:discoveryProgress', 'proxy:discoveryResult',
   'workspace:focusChanged', 'hotkey:openFind', 'hotkey:zoom', 'hotkey:openSettings',
+  'update:status',
 ] as const satisfies readonly IpcEventChannel[];
 
 /** Форма, яку preload виставляє в renderer через contextBridge. */

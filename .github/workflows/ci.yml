@@ -37,6 +37,11 @@ jobs:
         with: { node-version: '22', cache: npm }
       - run: npm ci
       - run: npm run typecheck
+      # НФ-3.2 — publish у electron-builder.yml не відкотився на іншого провайдера/
+      # репозиторій. На відміну від сусідів у джобі "verify", ця перевірка
+      # залежить від js-yaml (npm-пакет) — тут, на відміну від тієї джоби, вже
+      # відпрацював npm ci.
+      - run: node --experimental-transform-types scripts/verify-update-config.mts
       - run: npm run build
       # ANALYSIS.md, етап 7 — Playwright for Electron. windows-latest має
       # реальну (віртуальну) робочу сесію, тому GUI-застосунок стартує без

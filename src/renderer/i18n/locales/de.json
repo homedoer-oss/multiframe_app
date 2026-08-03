@@ -145,5 +145,8 @@
   "geoip.saveError": "Der Schlüssel konnte nicht gespeichert werden — der sichere Windows-Speicher ist nicht verfügbar.",
   "geoip.download": "Datenbank herunterladen / aktualisieren",
   "geoip.downloading": "Wird heruntergeladen…",
-  "geoip.downloadError": "Herunterladen fehlgeschlagen."
+  "geoip.downloadError": "Herunterladen fehlgeschlagen.",
+  "update.downloading": "Update wird heruntergeladen… {percent}%",
+  "update.restartButton": "Neustarten zum Aktualisieren",
+  "update.restartHint": "Version {version} ist bereit. Startet die App jetzt neu, um sie zu installieren."
 }

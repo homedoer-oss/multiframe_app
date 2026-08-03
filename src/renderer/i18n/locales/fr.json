@@ -145,5 +145,8 @@
   "geoip.saveError": "Impossible d'enregistrer la clé — le stockage sécurisé Windows n'est pas disponible.",
   "geoip.download": "Télécharger / mettre à jour la base",
   "geoip.downloading": "Téléchargement…",
-  "geoip.downloadError": "Échec du téléchargement."
+  "geoip.downloadError": "Échec du téléchargement.",
+  "update.downloading": "Téléchargement de la mise à jour… {percent}%",
+  "update.restartButton": "Redémarrer pour mettre à jour",
+  "update.restartHint": "La version {version} est prête. Redémarre l'application maintenant pour l'installer."
 }

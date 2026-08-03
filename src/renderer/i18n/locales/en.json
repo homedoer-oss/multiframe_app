@@ -145,5 +145,8 @@
   "geoip.saveError": "Could not save the key — Windows secure storage is unavailable.",
   "geoip.download": "Download / update database",
   "geoip.downloading": "Downloading…",
-  "geoip.downloadError": "Download failed."
+  "geoip.downloadError": "Download failed.",
+  "update.downloading": "Downloading update… {percent}%",
+  "update.restartButton": "Restart to update",
+  "update.restartHint": "Version {version} is ready. Restarts the app now to install it."
 }

@@ -138,3 +138,17 @@ export interface AppSettings {
   /** Ф-4.6 — дата останнього завантаження бази MaxMind GeoLite2, не секрет. */
   geoipLastUpdated: string | null;
 }
+
+/**
+ * НФ-3.2 — стан автооновлення (electron-updater, GitHub Releases).
+ * Працює лише в упакованому застосунку — `app.isPackaged` перевіряється
+ * в `main/update/autoUpdater.ts`, у `npm run dev` завжди `idle`.
+ */
+export type UpdateStatus =
+  | { state: 'idle' }
+  | { state: 'checking' }
+  | { state: 'available'; version: string }
+  | { state: 'not-available' }
+  | { state: 'downloading'; percent: number }
+  | { state: 'downloaded'; version: string }
+  | { state: 'error'; message: string };

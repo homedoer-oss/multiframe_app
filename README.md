@@ -53,18 +53,19 @@ npm start
 
 ## Перевірки
 
-Працюють без встановлення залежностей і без збірки:
+Працюють без встановлення залежностей і без збірки (окрім `verify:update-config`, який читає YAML через `js-yaml` — CI виконує його в джобі, де вже відпрацював `npm ci`):
 
 ```powershell
-npm run verify            # усі шість наборів нижче за раз
-npm run verify:addresses  # контрольні суми криптоадрес (Ф-13.21)
-npm run verify:i18n       # повнота перекладів у 5 мовах
-npm run verify:patches    # регресія шару маскування (Ф-4.5, Ф-4.7, Ф-4.8)
-npm run verify:backup     # цикл резервного копіювання профілю
-npm run verify:cdp        # захист від CDP-команд до першої навігації
-npm run verify:hotkeys    # гарячі клавіші: коди клавіш, конфлікти комбінацій
-npm run verify:geoip      # MaxMind: URL завантаження, евристика типу підмережі
-npm run typecheck         # обидва проєкти TypeScript
+npm run verify              # усі набори нижче за раз
+npm run verify:addresses    # контрольні суми криптоадрес (Ф-13.21)
+npm run verify:i18n         # повнота перекладів у 5 мовах
+npm run verify:patches      # регресія шару маскування (Ф-4.5, Ф-4.7, Ф-4.8)
+npm run verify:backup       # цикл резервного копіювання профілю
+npm run verify:cdp          # захист від CDP-команд до першої навігації
+npm run verify:hotkeys      # гарячі клавіші: коди клавіш, конфлікти комбінацій
+npm run verify:geoip        # MaxMind: URL завантаження, евристика типу підмережі
+npm run verify:update-config # НФ-3.2: publish у electron-builder.yml вказує на GitHub Releases
+npm run typecheck           # обидва проєкти TypeScript
 ```
 
 Наскрізні тести (Playwright для Electron, справжній запуск застосунку без участі людини):

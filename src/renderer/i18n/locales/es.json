@@ -145,5 +145,8 @@
   "geoip.saveError": "No se pudo guardar la clave — el almacenamiento seguro de Windows no está disponible.",
   "geoip.download": "Descargar / actualizar base de datos",
   "geoip.downloading": "Descargando…",
-  "geoip.downloadError": "Error al descargar."
+  "geoip.downloadError": "Error al descargar.",
+  "update.downloading": "Descargando actualización… {percent}%",
+  "update.restartButton": "Reiniciar para actualizar",
+  "update.restartHint": "La versión {version} está lista. Reinicia la aplicación ahora para instalarla."
 }

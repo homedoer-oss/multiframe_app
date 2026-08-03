@@ -37,6 +37,10 @@ nsis:
   displayLanguageSelector: true
   installerLanguages: [en_US, uk_UA, de_DE, es_ES, fr_FR]
 
+# НФ-3.2 — GitHub Releases цього репозиторію, рішення користувача
+# 2026-08-03. `electron-updater` читає ці дані з `app-update.yml`,
+# який electron-builder генерує лише в ЗІБРАНОМУ (не dev) застосунку.
 publish:
-  provider: generic
-  url: https://multiframe.app/releases
+  provider: github
+  owner: homedoer-oss
+  repo: multiframe_app

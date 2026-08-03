@@ -145,5 +145,8 @@
   "geoip.saveError": "Не вдалося зберегти ключ — захищене сховище Windows недоступне.",
   "geoip.download": "Завантажити / оновити базу",
   "geoip.downloading": "Завантаження…",
-  "geoip.downloadError": "Не вдалося завантажити."
+  "geoip.downloadError": "Не вдалося завантажити.",
+  "update.downloading": "Завантаження оновлення… {percent}%",
+  "update.restartButton": "Перезапустити для оновлення",
+  "update.restartHint": "Версія {version} готова. Перезапускає застосунок зараз для встановлення."
 }

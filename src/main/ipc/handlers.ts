@@ -9,6 +9,7 @@ import type { Workspace } from '../window/Workspace';
 import { buildProxyHandlers } from './proxyHandlers';
 import { buildIdentityHandlers } from './identityHandlers';
 import { buildGeoipHandlers } from './geoipHandlers';
+import { buildUpdateHandlers } from './updateHandlers';
 
 type Handler<C extends IpcInvokeChannel> = (
   payload: IpcInvokeMap[C]['req'],
@@ -34,11 +35,13 @@ export function registerIpc(
 
   const identityHandlers = buildIdentityHandlers(getWorkspace);
   const geoipHandlers = buildGeoipHandlers();
+  const updateHandlers = buildUpdateHandlers(emit);
 
   const handlers: HandlerMap = {
     ...proxyHandlers,
     ...identityHandlers,
     ...geoipHandlers,
+    ...updateHandlers,
     'app:getSettings': () => loadConfig().settings as AppSettings,
 
     'app:setSettings': (patch) => {
