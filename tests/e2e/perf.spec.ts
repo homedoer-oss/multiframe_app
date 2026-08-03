@@ -12,6 +12,34 @@ import { launchApp, cleanup } from './helpers';
  * без зіставлення з profileId, а таке зіставлення зараз ніде не
  * експонується. Загальний бюджет — головна, найчастіше цитована цифра.
  */
+/**
+ * НФ-1.1 — «холодний старт до робочої області — не більше 5 с». Ніколи
+ * не вимірювався жодного разу (docs/ACCEPTANCE-MATRIX.md, критерій 14) —
+ * `npm run dev` лише підтверджував, що вікно взагалі показується.
+ *
+ * Час рахується від виклику `_electron.launch()` до появи готової сітки
+ * (не лише екрана Launcher — «робоча область», як сформульовано в НФ-1.1).
+ * Playwright/CDP-хендшейк додає власний накладний час порівняно з
+ * реальним подвійним кліком користувача — тому це радше корисна межа
+ * регресії (якщо раптом стане набагато повільніше), а не лабораторний
+ * замір «справжніх» 5 секунд.
+ */
+test('cold start to a ready workspace grid takes under 5 seconds (НФ-1.1)', async () => {
+  const startedAt = Date.now();
+  const { app, window, userDataDir } = await launchApp();
+  try {
+    await window.getByRole('button', { name: '1', exact: true }).click();
+    await window.getByRole('button', { name: 'Open workspace' }).click();
+    await expect(window.getByText('Enter an address to start')).toBeVisible();
+
+    const elapsedMs = Date.now() - startedAt;
+    console.log(`cold start to ready workspace: ${elapsedMs}ms`);
+    expect(elapsedMs).toBeLessThan(5000);
+  } finally {
+    await cleanup(app, userDataDir);
+  }
+});
+
 function serveMulti(): Promise<{ server: Server; port: number }> {
   return new Promise((resolve) => {
     const server = createServer((req, res) => {
