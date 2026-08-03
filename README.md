@@ -4,9 +4,18 @@
 
 # MultiFrame Browser
 
-**[multiframe.app](https://multiframe.app)**
+**[multiframe.app](https://multiframe.app)** · **[⬇ Завантажити останню версію](https://github.com/homedoer-oss/multiframe_app/releases/latest)**
 
 Десктопний застосунок для Windows: від 1 до 9 незалежних вебсесій в одному вікні, у сітці до 3×3. Кожен профіль має власне сховище, власний проксі та власний профіль ідентичності пристрою.
+
+## Завантаження
+
+Готові збірки для Windows — на сторінці [Releases](https://github.com/homedoer-oss/multiframe_app/releases):
+
+- `MultiFrame.Browser-<версія>-setup.exe` — інсталятор (NSIS).
+- `MultiFrame.Browser-<версія>-portable.exe` — portable-версія, без встановлення.
+
+> Реліз наразі позначено як `prerelease` (стадія стабілізації, сертифікат підпису коду ще не додано — Windows SmartScreen попередить про невідомого видавця).
 
 **Статус:** етапи 0–5 реалізовано, етап 6 закрито в основному, етап 7 (стабілізація) розпочато.
 
