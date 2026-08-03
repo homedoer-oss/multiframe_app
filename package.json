@@ -1,0 +1,48 @@
+{
+  "name": "multiframe-browser",
+  "version": "0.1.0",
+  "description": "Від 1 до 9 незалежних вебсесій в одному вікні",
+  "homepage": "https://multiframe.app",
+  "license": "MIT",
+  "author": "MultiFrame Browser contributors",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "npm run typecheck && electron-vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "verify:addresses": "node scripts/verify-addresses.mjs",
+    "verify:i18n": "node scripts/verify-i18n.mjs",
+    "verify": "npm run verify:addresses && npm run verify:i18n && npm run verify:patches && npm run verify:backup && npm run verify:cdp && npm run verify:hotkeys && npm run verify:geoip",
+    "dist": "npm run build && electron-builder --win",
+    "postinstall": "electron-builder install-app-deps",
+    "verify:patches": "node --experimental-transform-types scripts/verify-patches.mts",
+    "verify:backup": "node --experimental-transform-types scripts/verify-backup.mts",
+    "verify:cdp": "node --experimental-transform-types scripts/verify-cdp-session.mts",
+    "verify:hotkeys": "node --experimental-transform-types scripts/verify-hotkeys.mts",
+    "verify:geoip": "node --experimental-transform-types scripts/verify-geoip.mts",
+    "test:e2e": "npm run build && playwright test"
+  },
+  "dependencies": {
+    "i18next": "^25.0.0",
+    "i18next-icu": "^2.3.0",
+    "intl-messageformat": "^10.7.0",
+    "maxmind": "^5.0.7",
+    "react-i18next": "^15.0.0",
+    "tar": "^7.5.22",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.0",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.0",
+    "vite": "^5.4.0"
+  }
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">MultiFrame icon</title>
+  <desc id="desc">Four browser windows arranged as a grid with an amber monitoring indicator</desc>
+  <rect width="512" height="512" rx="112" fill="#081B33"/>
+  <rect x="78" y="78" width="166" height="150" rx="26" fill="#1769E0"/>
+  <rect x="268" y="78" width="166" height="150" rx="26" fill="#2D8CFF"/>
+  <rect x="78" y="284" width="166" height="150" rx="26" fill="#2D8CFF"/>
+  <rect x="268" y="284" width="166" height="150" rx="26" fill="#1769E0"/>
+  <g fill="#DDEEFF">
+    <circle cx="108" cy="110" r="7"/><circle cx="131" cy="110" r="7"/>
+    <circle cx="298" cy="110" r="7"/><circle cx="321" cy="110" r="7"/>
+    <circle cx="108" cy="316" r="7"/><circle cx="131" cy="316" r="7"/>
+    <circle cx="298" cy="316" r="7"/><circle cx="321" cy="316" r="7"/>
+  </g>
+  <path d="M168 178h48M358 178h48M168 384h48M358 384h48" stroke="#DDEEFF" stroke-width="12" stroke-linecap="round" opacity=".8"/>
+  <circle cx="405" cy="107" r="30" fill="#FFB020" stroke="#081B33" stroke-width="10"/>
+</svg>

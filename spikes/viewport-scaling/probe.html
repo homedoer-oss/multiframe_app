@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>probe</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #16181d;
+    color: #e6e8ec;
+    font: 15px/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  h1 { font-size: 20px; margin: 0 0 10px; color: #7fd1ff; letter-spacing: .3px; }
+  table { border-collapse: collapse; width: 100%; }
+  td { padding: 2px 6px 2px 0; white-space: nowrap; }
+  td.k { color: #8b93a5; }
+  td.v { color: #e6e8ec; font-weight: 600; }
+  .bad { color: #ff6b6b; }
+  .good { color: #6bdd8f; }
+  /* маркер ширини: смуга, що показує, де проходить межа мобільної верстки */
+  .ruler { position: relative; height: 22px; margin: 10px 0 6px; background: #22252c; border-radius: 3px; }
+  .ruler i { position: absolute; top: 0; bottom: 0; width: 2px; background: #ff9f43; }
+  .ruler i::after { content: attr(data-l); position: absolute; top: 22px; left: 3px; font-size: 11px; color: #ff9f43; }
+  .box { position: absolute; top: 0; bottom: 0; left: 0; background: #2f6f4a; opacity: .5; }
+  .edge { position: fixed; top: 0; bottom: 0; width: 6px; background: repeating-linear-gradient(45deg,#ff9f43,#ff9f43 4px,#16181d 4px,#16181d 8px); }
+  .edge.l { left: 0; } .edge.r { right: 0; }
+</style>
+</head>
+<body>
+  <!-- Смуги по краях: якщо права смуга не видно — вміст обрізаний, а не масштабований (Г-3) -->
+  <div class="edge l"></div>
+  <div class="edge r"></div>
+
+  <h1 id="title">—</h1>
+
+  <div class="ruler">
+    <div class="box" id="box"></div>
+    <i style="left:768px" data-l="768"></i>
+    <i style="left:1024px" data-l="1024"></i>
+    <i style="left:1280px" data-l="1280"></i>
+  </div>
+
+  <table id="t"></table>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const wantW = parseInt(q.get('logicalW') || '0', 10);
+  document.getElementById('title').textContent = q.get('id') + '  [' + q.get('mode') + ']';
+
+  function row(k, v, cls) {
+    return '<tr><td class="k">' + k + '</td><td class="v ' + (cls || '') + '">' + v + '</td></tr>';
+  }
+
+  function render() {
+    const iw = innerWidth, ih = innerHeight;
+    const chrome = outerHeight - innerHeight;
+    const html = [
+      row('inner', iw + ' × ' + ih, wantW ? (Math.abs(iw - wantW) <= 3 ? 'good' : 'bad') : ''),
+      row('очікувано', wantW || '—'),
+      row('outer', outerWidth + ' × ' + outerHeight),
+      row('chrome (outerH−innerH)', chrome, chrome >= 60 ? 'good' : 'bad'),
+      row('devicePixelRatio', devicePixelRatio, [1, 1.25, 1.5, 2, 3].includes(devicePixelRatio) ? 'good' : 'bad'),
+      row('screen', screen.width + ' × ' + screen.height),
+      row('avail', screen.availWidth + ' × ' + screen.availHeight),
+      row('visualViewport', Math.round(visualViewport.width) + ' × ' + Math.round(visualViewport.height) + '  scale ' + visualViewport.scale),
+      row('scrollWidth', document.documentElement.scrollWidth,
+          document.documentElement.scrollWidth > iw + 3 ? 'bad' : 'good'),
+      row('верстка', iw < 768 ? 'МОБІЛЬНА (<768)' : 'десктопна', iw < 768 ? 'bad' : 'good'),
+      row('UA містить Electron', /Electron/.test(navigator.userAgent) ? 'ТАК' : 'ні',
+          /Electron/.test(navigator.userAgent) ? 'bad' : 'good'),
+    ].join('');
+    document.getElementById('t').innerHTML = html;
+    document.getElementById('box').style.width = Math.min(iw, 1400) + 'px';
+  }
+
+  render();
+  addEventListener('resize', render);
+  setInterval(render, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "spike-viewport-scaling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ф-4.5 spike: розв'язка логічного viewport від розміру комірки сітки",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "latest"
+  }
+}

@@ -1,0 +1,55 @@
+# Залежності
+node_modules/
+.pnp
+.pnp.js
+
+# Збірка
+dist/
+build/
+out/
+release/
+*.tsbuildinfo
+
+# Electron
+.electron-gyp/
+app.asar
+
+# Спайки
+spikes/**/out/
+
+# Оточення та секрети
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+signing/
+
+# Логи
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Тести
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Редактори та ОС
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Профілі та дані сесій (ніколи не потрапляють у репозиторій)
+Partitions/
+userData/
+*.ldb

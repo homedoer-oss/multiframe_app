@@ -1,0 +1,42 @@
+appId: app.multiframe.browser
+productName: MultiFrame Browser
+copyright: MIT © 2026 MultiFrame Browser contributors
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+
+# Ф-12.3 — перелік ліцензій сторонніх компонентів у теці встановлення
+extraResources:
+  - from: THIRD-PARTY-LICENSES.txt
+    to: THIRD-PARTY-LICENSES.txt
+
+win:
+  target: nsis
+  artifactName: ${productName}-${version}-setup.${ext}
+  # НФ-3.1 — підпис коду. Репутацію SmartScreen треба накопичувати
+  # з першої внутрішньої збірки, а не з релізу.
+  signingHashAlgorithms: [sha256]
+  # Без цього electron-builder тягне winCodeSign (macOS-інструменти для
+  # перевірки підпису оновлень) навіть для чисто Windows-збірки — архів
+  # містить symlink'и, які без Developer Mode / прав адміністратора не
+  # розпаковуються на Windows (ERROR: Cannot create symbolic link).
+  # Підпису однаково ще немає (сертифікат — розділ 10 STATE.md), тож
+  # перевіряти зараз нічого.
+  verifyUpdateCodeSignature: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  # Ф-8.19 — інсталятор локалізується тими самими п'ятьма мовами
+  displayLanguageSelector: true
+  installerLanguages: [en_US, uk_UA, de_DE, es_ES, fr_FR]
+
+publish:
+  provider: generic
+  url: https://multiframe.app/releases

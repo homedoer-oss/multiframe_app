@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Перевірки без залежностей
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      # Ф-13.21 — контрольні суми криптоадрес + збіг з ТЗ і README (критерій 41)
+      - run: node scripts/verify-addresses.mjs
+      # Ф-8.13 — повнота перекладів у всіх п'яти мовах
+      - run: node scripts/verify-i18n.mjs
+      # Ф-4.7 / Ф-4.8 — регресія шару маскування при оновленні Electron
+      - run: node --experimental-transform-types scripts/verify-patches.mts
+      # RECOMMENDATIONS §6 — придатність бекапів авторизованих сесій
+      - run: node --experimental-transform-types scripts/verify-backup.mts
+      # Ф-4.5 — CDP-команда до першої навігації підвішує рендерер безшумно
+      - run: node --experimental-transform-types scripts/verify-cdp-session.mts
+      # Ф-7.1 / Ф-8.17 — гарячі клавіші прив'язані до фізичних кодів, без конфліктів
+      - run: node --experimental-transform-types scripts/verify-hotkeys.mts
+      # Ф-4.6 / Ф-10.21 — URL завантаження MaxMind і евристика типу підмережі
+      - run: node --experimental-transform-types scripts/verify-geoip.mts
+
+  build:
+    name: Типізація, збірка й наскрізні тести
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      # ANALYSIS.md, етап 7 — Playwright for Electron. windows-latest має
+      # реальну (віртуальну) робочу сесію, тому GUI-застосунок стартує без
+      # xvfb — на відміну від ubuntu-раннерів. Використовує вже зібраний
+      # проєктний electron.exe, не окремо завантажений браузер — npx
+      # playwright install тут не потрібен.
+      - run: npx playwright test
+
+  package:
+    name: Пакування інсталятора NSIS
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - run: npm ci
+      # НФ-3.1 — на локальній машині без Developer Mode/прав адміністратора
+      # electron-builder падає на розпаковці winCodeSign (symlink'и macOS-
+      # інструментів, непотрібні для суто Windows-збірки без підпису —
+      # STATE.md §7, "Пакування"). Windows-раннери GitHub Actions мають
+      # достатньо прав, тому саме тут перевіряється, що NSIS-інсталятор
+      # взагалі збирається.
+      - run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nsis-installer
+          path: release/*.exe
+          retention-days: 14
+
+  guard:
+    name: Заборонені CDP-домени
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # RECOMMENDATIONS §2 — Runtime.enable виявляється зі сторінки.
+      # Випадково доданий виклик має ламати збірку.
+      - name: Пошук Runtime.enable поза CdpSession
+        run: |
+          if grep -rn "Runtime\.enable\|'Runtime\." src/ --include='*.ts' --include='*.tsx' \
+             | grep -v 'src/main/cdp/CdpSession.ts'; then
+            echo "::error::Знайдено звернення до CDP-домену Runtime. Див. RECOMMENDATIONS.md §2."
+            exit 1
+          fi
+          echo "Заборонених доменів не знайдено."

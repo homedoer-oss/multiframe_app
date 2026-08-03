@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 512" role="img" aria-labelledby="title desc">
+  <title id="title">MultiFrame Browser</title>
+  <desc id="desc">MultiFrame Browser wordmark with a four-window blue icon</desc>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#081B33"/>
+  <rect x="78" y="78" width="166" height="150" rx="26" fill="#1769E0"/>
+  <rect x="268" y="78" width="166" height="150" rx="26" fill="#2D8CFF"/>
+  <rect x="78" y="284" width="166" height="150" rx="26" fill="#2D8CFF"/>
+  <rect x="268" y="284" width="166" height="150" rx="26" fill="#1769E0"/>
+  <g fill="#DDEEFF">
+    <circle cx="108" cy="110" r="7"/><circle cx="131" cy="110" r="7"/>
+    <circle cx="298" cy="110" r="7"/><circle cx="321" cy="110" r="7"/>
+    <circle cx="108" cy="316" r="7"/><circle cx="131" cy="316" r="7"/>
+    <circle cx="298" cy="316" r="7"/><circle cx="321" cy="316" r="7"/>
+  </g>
+  <path d="M168 178h48M358 178h48M168 384h48M358 384h48" stroke="#DDEEFF" stroke-width="12" stroke-linecap="round" opacity=".8"/>
+  <circle cx="405" cy="107" r="30" fill="#FFB020" stroke="#081B33" stroke-width="10"/>
+  <text x="590" y="238" fill="#081B33" font-family="Segoe UI, Arial, sans-serif" font-size="118" font-weight="700" letter-spacing="-4">MultiFrame</text>
+  <text x="598" y="326" fill="#4C6682" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="600" letter-spacing="8">BROWSER</text>
+</svg>
