@@ -69,6 +69,7 @@
   "free.stop": "Arrêter",
   "free.progress": "Vérifiés {done} sur {total} · acceptés {accepted} · transparents rejetés {rejected}",
   "free.rejectedTransparent": "Les proxys transparents sont rejetés sans exception : ils divulguent votre adresse réelle au site cible.",
+  "free.assign": "Assigner à un profil",
   "paid.notice": "Les liens ci-dessous sont des liens d'affiliation : le projet perçoit une commission sur les parrainages. L'ordre ne dépend pas du montant de la commission ; les fournisseurs sont classés selon leur adéquation au travail multi-profils.",
   "paid.datacenterWarning": "Sous-réseaux majoritairement de centre de données — probabilité de blocage plus élevée",
   "paid.billing.traffic": "facturation au trafic",

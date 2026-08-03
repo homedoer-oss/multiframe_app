@@ -69,6 +69,7 @@
   "free.stop": "Anhalten",
   "free.progress": "Geprüft {done} von {total} · akzeptiert {accepted} · transparente abgelehnt {rejected}",
   "free.rejectedTransparent": "Transparente Proxys werden bedingungslos abgelehnt: Sie geben Ihre echte Adresse an die Zielseite weiter.",
+  "free.assign": "Profil zuweisen",
   "paid.notice": "Die folgenden Links sind Affiliate-Links — das Projekt erhält eine Provision für Vermittlungen. Die Reihenfolge richtet sich nicht nach der Provisionshöhe, sondern nach der Eignung für die Arbeit mit mehreren Profilen.",
   "paid.datacenterWarning": "Überwiegend Rechenzentrums-Subnetze — höhere Sperrwahrscheinlichkeit",
   "paid.billing.traffic": "Abrechnung nach Datenvolumen",

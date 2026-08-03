@@ -84,7 +84,7 @@ export function Settings({
         <main style={{ flex: 1, padding: 20, overflow: 'auto' }}>
           {tab === 'profiles' && <ProfileManagerPanel profiles={profiles} onProfilesChange={onProfilesChange} />}
           {tab === 'selfCheck' && <SelfCheckPanel profiles={profiles} />}
-          {tab === 'freeProxy' && <FreeProxyPanel />}
+          {tab === 'freeProxy' && <FreeProxyPanel profiles={profiles} />}
           {tab === 'paidProxy' && <PaidProxyPanel />}
           {tab === 'geoip' && <GeoIpPanel />}
           {tab === 'support' && <SupportPanel />}

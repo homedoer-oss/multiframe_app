@@ -69,6 +69,7 @@
   "free.stop": "Stop",
   "free.progress": "Checked {done} of {total} · accepted {accepted} · transparent rejected {rejected}",
   "free.rejectedTransparent": "Transparent proxies are rejected unconditionally: they expose your real address to the target site.",
+  "free.assign": "Assign to profile",
   "paid.notice": "The links below are affiliate links — the project receives a commission for referrals. The order is not determined by commission size; providers are sorted by suitability for multi-profile work.",
   "paid.datacenterWarning": "Mostly datacenter subnets — higher likelihood of blocks",
   "paid.billing.traffic": "billed by traffic",
