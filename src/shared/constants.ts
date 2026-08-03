@@ -9,9 +9,6 @@
 /** Офіційний сайт проєкту. Усі зовнішні посилання будуються від цієї константи (Ф-13.22). */
 export const SITE_URL = 'https://multiframe.app';
 
-/** Сторінка звіту та деталей збору на 67 ОМБр (Ф-13.5). */
-export const SUPPORT_UKRAINE_URL = `${SITE_URL}/support-Ukraine`;
-
 export const REPO_URL = 'https://github.com/multiframe-app/multiframe-browser';
 
 export type DonationNetwork = 'BTC' | 'ERC-20' | 'TRC-20' | 'SOL';
@@ -28,20 +25,6 @@ export const PROJECT_WALLETS: readonly DonationAddress[] = [
   { network: 'TRC-20', address: 'TNCWPQut8f3r2fP56LSiJdBymEANS5TNDZ' },
   { network: 'SOL', address: 'HMuDVXQq9bhb27LrHUQEHXWLJthvse5UM3rCQBQ4KYNy' },
 ] as const;
-
-/** Ф-13.20 — розділ «Донат на ЗСУ», підрозділи 67 ОМБр. */
-export const UKRAINE_WALLETS: readonly DonationAddress[] = [
-  { network: 'BTC', address: 'bc1qy0zcj4n7av6hkkwatf3a7yks60s9yu28zyrj39' },
-  { network: 'ERC-20', address: '0x86bbF4E7111958aFd8A863165f0ACeFb5181306e' },
-  { network: 'TRC-20', address: 'TMjk63TXr1YtXBZq8Vb75FFeYB6C6G9sYx' },
-  { network: 'SOL', address: 'frWSAhDa7Pfq2fYkarfw56WnNqFite7AXNC17R7Z1KQ' },
-] as const;
-
-/**
- * Ф-13.22.2 — розділ «Донат на ЗСУ» вмикається лише після наповнення
- * сторінки звіту. До того часу прапорець лишається false у релізних складаннях.
- */
-export const UKRAINE_SECTION_ENABLED = false;
 
 export const MIN_PROFILES = 1;
 export const MAX_PROFILES = 9;

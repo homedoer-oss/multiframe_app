@@ -94,21 +94,6 @@ Electron + TypeScript + React. `WebContentsView` на окрему сесію д
 | TRC-20 | `TNCWPQut8f3r2fP56LSiJdBymEANS5TNDZ` |
 | SOL | `HMuDVXQq9bhb27LrHUQEHXWLJthvse5UM3rCQBQ4KYNy` |
 
-### Донат на ЗСУ — підрозділи 67 ОМБр
-
-Волонтерський збір проєкту на потреби підрозділів 67-ї окремої механізованої бригади. Це **не** офіційний державний чи благодійний фонд.
-
-Звіт про використання коштів і деталі збору: **[multiframe.app/support-Ukraine](https://multiframe.app/support-Ukraine)**
-
-| Мережа | Адреса |
-|---|---|
-| BTC | `bc1qy0zcj4n7av6hkkwatf3a7yks60s9yu28zyrj39` |
-| ERC-20 | `0x86bbF4E7111958aFd8A863165f0ACeFb5181306e` |
-| TRC-20 | `TMjk63TXr1YtXBZq8Vb75FFeYB6C6G9sYx` |
-| SOL | `frWSAhDa7Pfq2fYkarfw56WnNqFite7AXNC17R7Z1KQ` |
-
-> **Статус:** домен зареєстровано, наповнення сторінки очікується. До появи діючого звіту розділ «Донат на ЗСУ» не вмикається у релізних складаннях (ТЗ Ф-13.5, Ф-13.22.2).
-
 ---
 
 ## Ліцензія

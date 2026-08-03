@@ -1,5 +1,5 @@
 import type { AssignResult, IpcInvokeMap } from '@shared/ipc';
-import { PROXY_PROVIDERS, PROJECT_WALLETS, SUPPORT_UKRAINE_URL, UKRAINE_SECTION_ENABLED, UKRAINE_WALLETS } from '@shared/constants';
+import { PROXY_PROVIDERS, PROJECT_WALLETS } from '@shared/constants';
 import { log } from '../logging/logger';
 import { updateProfile } from '../profile/ProfileManager';
 import { retargetRegion } from '../profile/identity';
@@ -119,10 +119,6 @@ export function buildProxyHandlers(
 
     'support:wallets': () => ({
       project: PROJECT_WALLETS,
-      ukraine: UKRAINE_WALLETS,
-      // Ф-13.22.2 — розділ вмикається лише після наповнення сторінки звіту.
-      ukraineEnabled: UKRAINE_SECTION_ENABLED,
-      reportUrl: SUPPORT_UKRAINE_URL,
     }),
   };
 }

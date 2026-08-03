@@ -130,7 +130,7 @@ export interface IpcInvokeMap {
   'profile:delete': { req: { id: string }; res: void };
 
   /** Ф-13.19 / Ф-13.20 — адреси беруться з коду, ніколи з мережі. */
-  'support:wallets': { req: void; res: { project: readonly DonationAddress[]; ukraine: readonly DonationAddress[]; ukraineEnabled: boolean; reportUrl: string } };
+  'support:wallets': { req: void; res: { project: readonly DonationAddress[] } };
 
   'shell:openExternal': { req: { url: string }; res: void };
 }

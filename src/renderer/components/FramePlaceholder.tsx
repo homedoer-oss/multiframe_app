@@ -25,6 +25,10 @@ export function FramePlaceholder({
   const [finding, setFinding] = useState(false);
   const id = profile.id;
   const error = state?.status.kind === 'error' ? state.status : null;
+  // Ф-2.8/Ф-2.9 — без відкритої вкладки нема що інспектувати чи шукати:
+  // withActiveWebContents() на боці main тихо не робить нічого в цьому
+  // випадку, тож кнопка мала б вигляд зламаної без disabled-стану.
+  const hasTab = Boolean(state && state.tabs.length > 0);
 
   // Адресний рядок стежить за фактичною навігацією, доки користувач не редагує його.
   const [edited, setEdited] = useState(false);
@@ -122,8 +126,8 @@ export function FramePlaceholder({
           }}
         />
 
-        <button style={btn} title={t('frame.find')} onClick={() => setFinding((v) => !v)}>⌕</button>
-        <button style={btn} title={t('frame.devtools')}
+        <button style={btn} disabled={!hasTab} title={t('frame.find')} onClick={() => setFinding((v) => !v)}>⌕</button>
+        <button style={btn} disabled={!hasTab} title={t('frame.devtools')}
           onClick={() => void window.multiframe.invoke('frame:openDevTools', { profileId: id })}>⚙</button>
 
         <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>

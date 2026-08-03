@@ -111,7 +111,6 @@ function extract(constName) {
 
 const groups = {
   'PROJECT_WALLETS (Ф-13.19)': extract('PROJECT_WALLETS'),
-  'UKRAINE_WALLETS (Ф-13.20)': extract('UKRAINE_WALLETS'),
 };
 
 let failures = 0;

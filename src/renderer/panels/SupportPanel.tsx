@@ -4,13 +4,12 @@ import type { DonationAddress } from '@shared/constants';
 
 interface Wallets {
   project: readonly DonationAddress[];
-  ukraine: readonly DonationAddress[];
-  ukraineEnabled: boolean;
-  reportUrl: string;
 }
 
 /**
- * Ф-13.1–13.18 — вікно підтримки.
+ * Ф-13.1–13.18 — вікно підтримки (лише розділ «Підтримати проєкт»;
+ * розділ «Донат на ЗСУ» видалено за рішенням користувача 2026-08-03 —
+ * див. ТЗ.md розділ 13 і STATE.md).
  *
  * Ф-13.7  — адреси приходять з коду через IPC, ніколи з мережі.
  * Ф-13.8  — відкриття вкладки не породжує жодного мережевого запиту.
@@ -66,30 +65,6 @@ export function SupportPanel(): JSX.Element {
 
       <h3 style={{ marginTop: 0, fontSize: 14 }}>{t('support.project')}</h3>
       {list(wallets.project)}
-
-      {/* Ф-13.2 — розділи розділені так, щоб переплутати призначення було неможливо */}
-      <h3 style={{ marginTop: 24, fontSize: 14, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-        {t('support.ukraine')}
-      </h3>
-      {/* Ф-13.4 — явне застереження про волонтерський характер збору */}
-      <p style={{ fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.6 }}>{t('support.ukraineUnit')}</p>
-
-      {/* Ф-13.5 — посилання на публічний звіт обов'язкове */}
-      <button
-        onClick={() => void window.multiframe.invoke('shell:openExternal', { url: wallets.reportUrl })}
-        style={{ fontSize: 12, padding: '6px 12px', marginBottom: 12, background: 'var(--surface)' }}
-      >
-        {t('support.report')} ↗
-      </button>
-
-      {wallets.ukraineEnabled ? (
-        list(wallets.ukraine)
-      ) : (
-        // Ф-13.22.2 — до наповнення сторінки звіту розділ не публікується
-        <div style={{ fontSize: 12, color: 'var(--text-dim)', fontStyle: 'italic' }}>
-          {t('support.disabledNotice')}
-        </div>
-      )}
 
       {copied && (
         <div style={{ position: 'sticky', bottom: 0, marginTop: 12, padding: 10,

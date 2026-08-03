@@ -42,6 +42,17 @@ test('navigating one cell loads a page while the others stay empty (Ф-1.7)', as
 
     // Лише ОДНА комірка мала відкрити вкладку — друга лишається лінивою.
     await expect(window.getByText('Enter an address to start')).toHaveCount(1);
+
+    // Знайдено 2026-08-03 («кнопка шестерні — при натисканні нічого не
+    // відбувається»): DevTools/Find без активної вкладки тихо не робили
+    // нічого (withActiveWebContents на боці main мовчки пропускає виклик).
+    // Кнопки тепер disabled саме там, де немає вкладки.
+    const devTools = window.getByTitle('Developer tools');
+    const find = window.getByTitle('Find on page');
+    await expect(devTools.first()).toBeEnabled();
+    await expect(devTools.last()).toBeDisabled();
+    await expect(find.first()).toBeEnabled();
+    await expect(find.last()).toBeDisabled();
   } finally {
     server.close();
     await cleanup(app, userDataDir);
