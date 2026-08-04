@@ -28,6 +28,17 @@ export class Workspace {
   private maximized: string | null = null;
   private focused: string | null = null;
   private strategy: ViewportStrategy = new ZoomViewportStrategy();
+  /**
+   * 2026-08-04 — раніше `setAllFramesVisible()` лише пробігала ПОТОЧНІ
+   * `this.frames` і нічого не запам'ятовувала: фрейм, перестворений через
+   * `recreateFrame()` (Ф-5.4, перемикання «Save session») ПОКИ Settings
+   * ще відкриті, отримував новий `Frame` із дефолтним `visible = true` —
+   * білий (ще не навігований) WebContentsView вилазив НАД модалкою Settings
+   * (§5.9 — view завжди над DOM оболонки) і робив її недосяжною для кліків.
+   * Стан тепер зберігається тут і застосовується до КОЖНОГО новоствореного
+   * фрейму в `createFrame()`, не лише до вже наявних на момент виклику.
+   */
+  private framesVisible = true;
 
   constructor(
     private readonly window: BaseWindow,
@@ -58,6 +69,11 @@ export class Workspace {
     return this.frames.get(profileId)?.profile;
   }
 
+  /** Розгорнутий фрейм лишається сам; поза розгортанням — усі, якщо оверлей не ховає їх. */
+  private visibilityFor(profileId: string): boolean {
+    return this.framesVisible && (this.maximized === null || this.maximized === profileId);
+  }
+
   /**
    * Спільна для launch() і recreateFrame() (Ф-5.4): створює Frame,
    * прив'язує сесію/теку завантажень і застосовує проксі ДО першої
@@ -84,6 +100,11 @@ export class Workspace {
     // Правила не містять DIRECT, тому фрейм не може піти напряму,
     // навіть якщо проксі недоступний (kill-switch Ф-3.8).
     await applyProxy(profile, session);
+
+    // До будь-якої вкладки (openTab() тут ще не викликано) — щоб перше ж
+    // activate() всередині openTab() побачило правильний стан видимості,
+    // а не дефолтний `true` з конструктора Frame.
+    frame.setVisible(this.visibilityFor(profile.id));
 
     return frame;
   }
@@ -205,7 +226,7 @@ export class Workspace {
   /** Ф-1.8 — розгортання фрейму. Змінює лише scale, не логічний viewport. */
   maximize(profileId: string | null): void {
     this.maximized = profileId;
-    for (const [id, frame] of this.frames) frame.setVisible(profileId === null || id === profileId);
+    for (const [id, frame] of this.frames) frame.setVisible(this.visibilityFor(id));
     if (profileId) this.focus(profileId);
     this.emit('workspace:layoutInvalidated', { reason: 'maximize' });
   }
@@ -216,10 +237,8 @@ export class Workspace {
    * (налаштування, самоперевірка) без цього виклику були б невидимі.
    */
   setAllFramesVisible(visible: boolean): void {
-    for (const [id, frame] of this.frames) {
-      const allowed = this.maximized === null || this.maximized === id;
-      frame.setVisible(visible && allowed);
-    }
+    this.framesVisible = visible;
+    for (const [id, frame] of this.frames) frame.setVisible(this.visibilityFor(id));
   }
 
   /** Ф-1.9 — модель фокусу: клавіатурне введення отримує один фрейм. */
