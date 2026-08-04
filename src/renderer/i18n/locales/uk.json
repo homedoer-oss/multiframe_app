@@ -1,5 +1,6 @@
 {
   "app.name": "MultiFrame Browser",
+  "app.version": "v{version}",
   "launcher.title": "Скільки профілів потрібно?",
   "launcher.subtitle": "Кожен профіль — незалежна вебсесія з власним сховищем, проксі та ідентичністю пристрою.",
   "launcher.count": "{count, plural, one {# профіль} few {# профілі} many {# профілів} other {# профілю}}",
@@ -149,6 +150,8 @@
   "geoip.downloading": "Завантаження…",
   "geoip.downloadError": "Не вдалося завантажити.",
   "update.downloading": "Завантаження оновлення… {percent}%",
+  "update.downloadButton": "Завантажити v{version}",
+  "update.downloadHint": "Нова версія ({version}) доступна на GitHub. Відкриває сторінку релізів у браузері.",
   "update.restartButton": "Перезапустити для оновлення",
   "update.restartHint": "Версія {version} готова. Перезапускає застосунок зараз для встановлення.",
   "profiles.proxy": "Проксі",

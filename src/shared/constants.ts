@@ -9,7 +9,15 @@
 /** Офіційний сайт проєкту. Усі зовнішні посилання будуються від цієї константи (Ф-13.22). */
 export const SITE_URL = 'https://multiframe.app';
 
-export const REPO_URL = 'https://github.com/multiframe-app/multiframe-browser';
+/**
+ * 2026-08-04 — раніше вказувала на неіснуючий репозиторій
+ * (`multiframe-app/multiframe-browser`, ніколи не існував) і ніде не
+ * використовувалась — мертва й до того ж хибна константа. Реальний
+ * репозиторій — `electron-builder.yml` (`publish.owner`/`publish.repo`).
+ */
+export const REPO_URL = 'https://github.com/homedoer-oss/multiframe_app';
+/** Ф-<нова> — перевірка нової версії (App.tsx, кнопка «Download» біля Settings). */
+export const RELEASES_URL = `${REPO_URL}/releases/latest`;
 
 export type DonationNetwork = 'BTC' | 'ERC-20' | 'TRC-20' | 'SOL';
 

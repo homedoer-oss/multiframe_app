@@ -1,5 +1,6 @@
 {
   "app.name": "MultiFrame Browser",
+  "app.version": "v{version}",
   "launcher.title": "How many profiles do you need?",
   "launcher.subtitle": "Each profile is an independent web session with its own storage, proxy and device identity.",
   "launcher.count": "{count, plural, one {# profile} other {# profiles}}",
@@ -149,6 +150,8 @@
   "geoip.downloading": "Downloading…",
   "geoip.downloadError": "Download failed.",
   "update.downloading": "Downloading update… {percent}%",
+  "update.downloadButton": "Download v{version}",
+  "update.downloadHint": "A new version ({version}) is available on GitHub. Opens the releases page in your browser.",
   "update.restartButton": "Restart to update",
   "update.restartHint": "Version {version} is ready. Restarts the app now to install it.",
   "profiles.proxy": "Proxy",

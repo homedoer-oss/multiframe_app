@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppSettings, Profile, UpdateStatus } from '@shared/types';
+import { RELEASES_URL } from '@shared/constants';
 import { Launcher } from './screens/Launcher';
 import { Workspace } from './screens/Workspace';
 import { Settings } from './screens/Settings';
@@ -12,6 +13,7 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>({ state: 'idle' });
+  const [appVersion, setAppVersion] = useState('');
   // Рішення користувача 2026-08-03 — логотип на старті. Прапорець живе тут
   // (не всередині Splash), щоб оверлей можна було показати НАД будь-яким
   // екраном (Launcher чи вже відкрита робоча область), не дублюючи розгалуження.
@@ -26,6 +28,10 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
   useEffect(() => {
     void window.multiframe.invoke('update:getStatus', undefined).then(setUpdateStatus);
     return window.multiframe.on('update:status', setUpdateStatus);
+  }, []);
+
+  useEffect(() => {
+    void window.multiframe.invoke('app:getVersion', undefined).then(setAppVersion);
   }, []);
 
   // Ф-9.6 — тема інтерфейсу застосунку. Не плутати з мовою профілю (Ф-8.6):
@@ -74,30 +80,45 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
       </div>
 
       <div data-testid="shell-footer" style={{
-        flexShrink: 0, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+        flexShrink: 0, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 8, padding: '0 10px', background: 'var(--surface)', borderTop: '1px solid var(--border)',
       }}>
-        {/* НФ-3.2 — лише станам, вартим уваги користувача: завантаження й
-            перевірка не показуються, щоб не засмічувати оболонку. */}
-        {updateStatus.state === 'downloading' && (
-          <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-            {t('update.downloading', { percent: updateStatus.percent })}
-          </span>
-        )}
-        {updateStatus.state === 'downloaded' && (
-          <button
-            onClick={() => void window.multiframe.invoke('update:install', undefined)}
-            title={t('update.restartHint', { version: updateStatus.version })}
-            style={{ padding: '4px 12px', fontSize: 12, background: 'var(--success)', border: '1px solid var(--border)' }}
-          >
-            {t('update.restartButton')}
-          </button>
+        {appVersion && (
+          <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>{t('app.version', { version: appVersion })}</span>
         )}
 
-        <button onClick={() => setSettingsOpen(true)} title={t('settings.open')}
-          style={{ padding: '4px 12px', fontSize: 12, background: 'var(--bg)', border: '1px solid var(--border)' }}>
-          {t('settings.open')}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* НФ-3.2 — лише станам, вартим уваги користувача: перевірка не
+              показується, щоб не засмічувати оболонку. */}
+          {updateStatus.state === 'available' && (
+            <button
+              onClick={() => void window.multiframe.invoke('shell:openExternal', { url: RELEASES_URL })}
+              title={t('update.downloadHint', { version: updateStatus.version })}
+              style={{ padding: '4px 12px', fontSize: 12, background: 'var(--accent)', border: '1px solid var(--border)' }}
+            >
+              {t('update.downloadButton', { version: updateStatus.version })}
+            </button>
+          )}
+          {updateStatus.state === 'downloading' && (
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>
+              {t('update.downloading', { percent: updateStatus.percent })}
+            </span>
+          )}
+          {updateStatus.state === 'downloaded' && (
+            <button
+              onClick={() => void window.multiframe.invoke('update:install', undefined)}
+              title={t('update.restartHint', { version: updateStatus.version })}
+              style={{ padding: '4px 12px', fontSize: 12, background: 'var(--success)', border: '1px solid var(--border)' }}
+            >
+              {t('update.restartButton')}
+            </button>
+          )}
+
+          <button onClick={() => setSettingsOpen(true)} title={t('settings.open')}
+            style={{ padding: '4px 12px', fontSize: 12, background: 'var(--bg)', border: '1px solid var(--border)' }}>
+            {t('settings.open')}
+          </button>
+        </div>
       </div>
 
       {settingsOpen && (

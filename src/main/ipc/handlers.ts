@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ipcMain } from 'electron';
 import { IPC_INVOKE_CHANNELS, type IpcInvokeChannel, type IpcInvokeMap } from '@shared/ipc';
 import type { AppSettings } from '@shared/types';
@@ -10,6 +12,22 @@ import { buildProxyHandlers } from './proxyHandlers';
 import { buildIdentityHandlers } from './identityHandlers';
 import { buildGeoipHandlers } from './geoipHandlers';
 import { buildUpdateHandlers } from './updateHandlers';
+
+/**
+ * 2026-08-04 — `app.getVersion()` у розробницькому/тестовому запуску
+ * (`electron out/main/index.js`, без окремого package.json поряд) не
+ * знаходить package.json і мовчки віддає ВЕРСІЮ САМОГО ELECTRON
+ * (підтверджено: `v33.4.11` замість `v0.1.1` — перевірено e2e-тестом,
+ * tests/e2e/version-and-update.spec.ts). У пакованому застосунку
+ * `app.getAppPath()` — корінь asar, де package.json є (files:
+ * [out/**\/*, package.json], electron-builder.yml) і `app.getVersion()`
+ * спрацював би коректно, але дублювати логіку версії для одного
+ * контексту й покладатись на іншу для іншого — крихко. Явне читання
+ * того самого package.json, який пакується РАЗОМ із out/ (той самий
+ * відносний шлях від __dirname і в дев-режимі, і всередині asar),
+ * працює однаково в обох.
+ */
+const APP_VERSION = (JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8')) as { version: string }).version;
 
 type Handler<C extends IpcInvokeChannel> = (
   payload: IpcInvokeMap[C]['req'],
@@ -53,6 +71,7 @@ export function registerIpc(
     },
 
     'app:hasPreviousSession': () => loadConfig().lastSession !== null,
+    'app:getVersion': () => APP_VERSION,
 
     'workspace:launch': async ({ profileCount, restorePrevious }) => {
       const profiles = ensureProfiles(profileCount, restorePrevious);

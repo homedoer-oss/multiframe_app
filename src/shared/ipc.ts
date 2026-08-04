@@ -52,6 +52,8 @@ export interface IpcInvokeMap {
   'app:getSettings': { req: void; res: AppSettings };
   'app:setSettings': { req: Partial<AppSettings>; res: AppSettings };
   'app:hasPreviousSession': { req: void; res: boolean };
+  /** 2026-08-04 — версія з `app.getVersion()` (сама collect з `package.json` під час пакування). */
+  'app:getVersion': { req: void; res: string };
 
   'workspace:launch': { req: LaunchOptions; res: Profile[] };
   'workspace:close': { req: void; res: void };
@@ -163,7 +165,7 @@ export type IpcInvokeChannel = keyof IpcInvokeMap;
 export type IpcEventChannel = keyof IpcEventMap;
 
 export const IPC_INVOKE_CHANNELS = [
-  'app:getSettings', 'app:setSettings', 'app:hasPreviousSession',
+  'app:getSettings', 'app:setSettings', 'app:hasPreviousSession', 'app:getVersion',
   'workspace:launch', 'workspace:close', 'workspace:setCellRects', 'workspace:maximizeFrame',
   'workspace:setFramesVisible', 'workspace:tabPresence',
   'frame:navigate', 'frame:goBack', 'frame:goForward', 'frame:reload', 'frame:stop', 'frame:setZoom',
