@@ -157,5 +157,6 @@
   "profiles.proxy.testing": "Test en cours…",
   "profiles.proxy.testFailed": "Impossible de se connecter via ce proxy.",
   "profiles.proxy.assign": "Assigner à ce profil",
-  "profiles.proxy.assigned": "Assigné."
+  "profiles.proxy.assigned": "Assigné. Rechargez l'onglet pour que le changement prenne effet.",
+  "profiles.proxy.reloadNow": "Recharger maintenant"
 }

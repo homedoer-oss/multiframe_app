@@ -157,5 +157,6 @@
   "profiles.proxy.testing": "Wird getestet…",
   "profiles.proxy.testFailed": "Verbindung über diesen Proxy fehlgeschlagen.",
   "profiles.proxy.assign": "Diesem Profil zuweisen",
-  "profiles.proxy.assigned": "Zugewiesen."
+  "profiles.proxy.assigned": "Zugewiesen. Tab neu laden, damit die Änderung wirksam wird.",
+  "profiles.proxy.reloadNow": "Jetzt neu laden"
 }

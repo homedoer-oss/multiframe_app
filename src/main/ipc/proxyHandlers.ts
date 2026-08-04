@@ -1,11 +1,12 @@
 import type { AssignResult, IpcInvokeMap } from '@shared/ipc';
 import { PROXY_PROVIDERS, PROJECT_WALLETS, SITE_URL } from '@shared/constants';
 import { log } from '../logging/logger';
-import { updateProfile } from '../profile/ProfileManager';
+import { sessionFor, updateProfile } from '../profile/ProfileManager';
 import { retargetRegion } from '../profile/identity';
 import { DiscoveryRun, evaluateProxy, type CheckCandidate } from '../proxy/discovery';
 import { canAssignProxy } from '../proxy/guards';
 import { isVaultAvailable, setPassword } from '../proxy/credentials';
+import { applyProxy } from '../proxy/ProxyManager';
 import { DEFAULT_CONCURRENCY, parseProxyList } from '../proxy/sources';
 import type { Workspace } from '../window/Workspace';
 
@@ -69,11 +70,19 @@ export function buildProxyHandlers(
         // не цієї перевірки); просто немає чим оновити регіон цього разу.
       }
 
-      updateProfile(profileId, {
+      const updated = updateProfile(profileId, {
         proxy: { ...config, hasPassword: Boolean(password) || config.hasPassword },
         exitCountry,
         identity,
       });
+
+      // Ф-3.6 — без цього виклику нове правило осідало лише в config.json:
+      // уже відкритий фрейм (створений до перепризначення) продовжував би
+      // мовчки ганяти трафік через СТАРІ proxyRules сесії аж до перезапуску
+      // застосунку. session.fromPartition() повертає той самий об'єкт
+      // Session, тож це саме той Session, яким користується активний Frame.
+      await applyProxy(updated, sessionFor(updated));
+
       log.info({ code: 'proxy.assigned', profileId, mode: config.mode, class: config.class, exitCountry });
       return { ok: true };
     },

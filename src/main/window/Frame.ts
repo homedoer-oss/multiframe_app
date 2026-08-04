@@ -128,11 +128,21 @@ export class Frame {
       if (this.onHotkey?.(input)) event.preventDefault();
     });
 
-    wc.on('did-start-loading', () => { entry.loading = true; this.push({ kind: 'loading' }); });
+    // Ф-2.4 — Chromium після did-fail-load одразу «фінішує» власним
+    // порожнім документом на тому самому URL (підтверджено логами: різниця
+    // ~25мс, той самий validatedURL) — без цього прапорця наступний
+    // did-finish-load трактував би цей внутрішній коміт як успіх і стирав
+    // би щойно показаний банер помилки. Скидається на початку КОЖНОЇ нової
+    // спроби навігації (did-start-loading), тож повторний reload/перехід
+    // за іншою адресою знову дає did-finish-load шанс на 'ready'.
+    let failedThisLoad = false;
+
+    wc.on('did-start-loading', () => { failedThisLoad = false; entry.loading = true; this.push({ kind: 'loading' }); });
     wc.on('did-stop-loading', () => { entry.loading = false; this.push(); });
     wc.on('page-title-updated', (_e, title) => { entry.title = title; this.push(); });
 
     wc.on('did-finish-load', () => {
+      if (failedThisLoad) return;
       // Успішне завантаження знімає накладену помилку.
       this.setViewVisible(true);
       this.push({ kind: 'ready' });
@@ -145,6 +155,7 @@ export class Frame {
     // у своєму фреймі, не впливаючи на інші.
     wc.on('did-fail-load', (_e, code, description, url, isMainFrame) => {
       if (!isMainFrame || code === -3 /* ERR_ABORTED */) return;
+      failedThisLoad = true;
       const kind = classifyFailure(code);
       log.warn({ code: 'frame.load_failed', profileId: this.profile.id, errorCode: code, url, kind });
       this.pushError(kind, description || String(code), url, String(code));
@@ -193,9 +204,17 @@ export class Frame {
     return this.cell;
   }
 
+  /**
+   * Викликається з Workspace при показі/ховизі оверлея (Settings, Splash —
+   * АРХ §5.9). Якщо активна вкладка зараз у стані помилки, view лишається
+   * прихованим і після повернення оверлея: інакше він знову закрив би собою
+   * FrameError оболонки, щойно оверлей закриється (view завжди рендериться
+   * НАД DOM оболонки, z-index тут не діє).
+   */
   setVisible(visible: boolean): void {
     this.visible = visible;
-    for (const [id, entry] of this.tabs) entry.view.setVisible(visible && id === this.activeTabId);
+    const showActive = visible && this.lastStatus.kind !== 'error';
+    for (const [id, entry] of this.tabs) entry.view.setVisible(showActive && id === this.activeTabId);
   }
 
   /** Ховає view, щоб крізь нього проступила локалізована помилка з оболонки. */

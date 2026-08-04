@@ -157,5 +157,6 @@
   "profiles.proxy.testing": "Перевірка…",
   "profiles.proxy.testFailed": "Не вдалося підключитись через цей проксі.",
   "profiles.proxy.assign": "Призначити цьому профілю",
-  "profiles.proxy.assigned": "Призначено."
+  "profiles.proxy.assigned": "Призначено. Перезавантажте вкладку, щоб зміна набула чинності.",
+  "profiles.proxy.reloadNow": "Перезавантажити зараз"
 }

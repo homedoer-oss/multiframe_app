@@ -437,8 +437,17 @@ export function ProfileManagerPanel({
                     <div style={{ fontSize: 11, color: 'var(--error)', marginTop: 8 }}>{t('profiles.proxy.testFailed')}</div>
                   )}
                   {assignMsg && (
-                    <div style={{ fontSize: 11, marginTop: 8, color: assignMsg.ok ? 'var(--success)' : 'var(--error)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, marginTop: 8,
+                      color: assignMsg.ok ? 'var(--success)' : 'var(--error)' }}>
                       {assignMsg.ok ? t('profiles.proxy.assigned') : t(`assign.refused.${assignMsg.reason}`)}
+                      {assignMsg.ok && (
+                        <button
+                          onClick={() => void window.multiframe.invoke('frame:reload', { profileId: p.id })}
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                        >
+                          {t('profiles.proxy.reloadNow')}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
