@@ -124,6 +124,8 @@ export interface FrameState {
    * `null` — режим `direct`, ще не отримано, або запит не вдався.
    */
   exitIp: string | null;
+  /** Розрізняє «перевірка ще триває» (обидва поля порожні) від «перевірено, не вдалось». */
+  proxyCheckFailed: boolean;
 }
 
 export interface CellRect {

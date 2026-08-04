@@ -29,6 +29,11 @@ export function FramePlaceholder({
   // withActiveWebContents() на боці main тихо не робить нічого в цьому
   // випадку, тож кнопка мала б вигляд зламаної без disabled-стану.
   const hasTab = Boolean(state && state.tabs.length > 0);
+  // 2026-08-04 — вкладка є, але на about:blank (щойно перестворений фрейм
+  // чи прогрів перед реальною навігацією, Frame.ts isBlankIdle()) — main
+  // ховає view саме для цього випадку, інакше тут було б порожнє біле
+  // вікно («біле вікно» з погляду користувача) замість статусу проксі.
+  const isBlankIdle = hasTab && !error && state?.currentUrl === 'about:blank';
 
   // Адресний рядок стежить за фактичною навігацією, доки користувач не редагує його.
   const [edited, setEdited] = useState(false);
@@ -195,6 +200,27 @@ export function FramePlaceholder({
             url={error.url}
             onRetry={() => void window.multiframe.invoke('frame:reload', { profileId: id })}
           />
+        )}
+        {isBlankIdle && (
+          profile.proxy.mode === 'direct' ? (
+            <div style={{ display: 'grid', placeItems: 'center', height: '100%',
+              color: 'var(--text-dim)', fontSize: 12 }}>{emptyLabel}</div>
+          ) : (
+            <div style={{ display: 'grid', placeItems: 'center', height: '100%', textAlign: 'center' }}>
+              {state?.exitIp ? (
+                <div>
+                  <div style={{ color: 'var(--success)', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+                    {t('frame.proxyActive')}
+                  </div>
+                  <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>{state.exitIp}</div>
+                </div>
+              ) : state?.proxyCheckFailed ? (
+                <div style={{ color: 'var(--warning)', fontSize: 13 }}>{t('frame.proxyCheckFailed')}</div>
+              ) : (
+                <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>{t('frame.proxyChecking')}</div>
+              )}
+            </div>
+          )
         )}
       </div>
     </div>

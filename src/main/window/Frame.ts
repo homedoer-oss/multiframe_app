@@ -152,13 +152,19 @@ export class Frame {
     // годиться як сигнал «почалась нова навігація»: IP з'являлась і одразу
     // зникала, щойно на сторінці підвантажувався будь-який iframe. did-navigate
     // «emitted for a MAIN FRAME navigation» (Electron docs) — саме той сигнал.
-    wc.on('did-navigate', () => { this.exitIp = null; });
+    wc.on('did-navigate', () => {
+      this.exitIp = null;
+      this.proxyCheckFailed = false;
+      // URL щойно змінився (у т.ч. про переходи НА/З about:blank) —
+      // перерахувати видимість негайно, не чекаючи наступної події.
+      this.syncViewVisibility();
+    });
 
     wc.on('did-finish-load', () => {
       if (failedThisLoad) return;
       // Успішне завантаження знімає накладену помилку.
-      this.setViewVisible(true);
       this.push({ kind: 'ready' });
+      this.syncViewVisibility();
       // Г-7 — зум per-origin, перевстановлюється на кожній навігації,
       // включно з початковою about:blank (нешкідливо, коштує один виклик).
       this.onTabReady?.();
@@ -184,9 +190,10 @@ export class Frame {
   activate(tabId: string): void {
     if (!this.tabs.has(tabId)) return;
     this.activeTabId = tabId;
+    const showActive = this.shouldShowActiveView();
     for (const [id, entry] of this.tabs) {
       const isActive = id === tabId;
-      entry.view.setVisible(isActive && this.visible);
+      entry.view.setVisible(isActive && showActive);
       entry.view.setBounds(isActive ? this.cell : HIDDEN);
     }
     this.push();
@@ -227,14 +234,35 @@ export class Frame {
    */
   setVisible(visible: boolean): void {
     this.visible = visible;
-    const showActive = visible && this.lastStatus.kind !== 'error';
+    const showActive = this.shouldShowActiveView();
     for (const [id, entry] of this.tabs) entry.view.setVisible(showActive && id === this.activeTabId);
   }
 
-  /** Ховає view, щоб крізь нього проступила локалізована помилка з оболонки. */
-  private setViewVisible(visible: boolean): void {
-    const active = this.activeEntry();
-    if (active && this.visible) active.view.setVisible(visible);
+  /**
+   * Активна вкладка на `about:blank` без помилки — нема реального вмісту
+   * (щойно перестворений фрейм чи прогрів перед справжньою навігацією,
+   * openTab()) — оболонка показує статус проксі замість порожнього білого
+   * view (2026-08-04, «біле вікно» з погляду користувача).
+   */
+  private isBlankIdle(): boolean {
+    const wc = this.activeWebContents();
+    return wc !== null && wc.getURL() === 'about:blank';
+  }
+
+  /**
+   * Єдине джерело правди для видимості активного view — приховується, якщо
+   * оверлей (Settings/Splash) ховає фрейми, АБО вкладка в стані помилки
+   * (FrameError оболонки замість), АБО вкладка на about:blank (статус
+   * проксі оболонки замість). Раніше це вирішувалось трьома незалежними
+   * викликами `setVisible(true/false)`, які легко розходились одне з одним
+   * (саме так двічі цього дня — розділ 9 STATE.md).
+   */
+  private shouldShowActiveView(): boolean {
+    return this.visible && this.lastStatus.kind !== 'error' && !this.isBlankIdle();
+  }
+
+  private syncViewVisibility(): void {
+    this.activeEntry()?.view.setVisible(this.shouldShowActiveView());
   }
 
   navigate(url: string): void {
@@ -276,16 +304,21 @@ export class Frame {
   }
 
   private pushError(error: FrameErrorKind, detail: string, url: string, code: string): void {
-    this.setViewVisible(false);
     // Невідомо, чи запит цієї навігації взагалі кудись дійшов — застаріла
     // адреса з попереднього успішного завантаження вводила б в оману
     // (виглядала б підтвердженням захисту там, де його не було).
     this.exitIp = null;
+    this.proxyCheckFailed = false;
     this.push({ kind: 'error', error, code, detail, url });
+    // ПІСЛЯ push(): shouldShowActiveView() звіряється з this.lastStatus,
+    // який push() щойно оновив на 'error'.
+    this.syncViewVisibility();
   }
 
   private lastStatus: FrameState['status'] = { kind: 'idle' };
   private exitIp: string | null = null;
+  /** Розрізняє «ще перевіряється» (обидва null/false) від «перевірено, не вдалось». */
+  private proxyCheckFailed = false;
 
   /**
    * Поточна вихідна IP-адреса ЖИВОЇ сесії — не окрема перевірка конфігурації
@@ -304,14 +337,17 @@ export class Frame {
       const via = await ses.resolveProxy(echoUrl);
       if (via.trim().toUpperCase() === 'DIRECT') {
         this.exitIp = null;
+        this.proxyCheckFailed = false;
         this.push();
         return;
       }
       const res = await ses.fetch(echoUrl, { signal: AbortSignal.timeout(DEFAULT_PROBE.timeoutMs) });
       this.exitIp = extractExitIp(await res.text());
+      this.proxyCheckFailed = this.exitIp === null;
     } catch (err) {
       log.warn({ code: 'frame.exit_ip_check_failed', profileId: this.profile.id, error: String(err) });
       this.exitIp = null;
+      this.proxyCheckFailed = true;
     }
     this.push();
   }
@@ -329,6 +365,7 @@ export class Frame {
       currentUrl: wc?.getURL() ?? '',
       userZoom: this.profile.userZoom,
       exitIp: this.exitIp,
+      proxyCheckFailed: this.proxyCheckFailed,
     });
   }
 
