@@ -140,13 +140,19 @@ export class Frame {
 
     wc.on('did-start-loading', () => {
       failedThisLoad = false;
-      // Не показувати IP попередньої навігації, поки не підтверджено нову.
-      this.exitIp = null;
       entry.loading = true;
       this.push({ kind: 'loading' });
     });
     wc.on('did-stop-loading', () => { entry.loading = false; this.push(); });
     wc.on('page-title-updated', (_e, title) => { entry.title = title; this.push(); });
+
+    // «Corresponds to the points in time when the spinner of the tab started
+    // spinning» (Electron docs) — did-start-loading відображає isLoading()
+    // усього WebContents, включно з підфреймами (реклама/трекери), тому НЕ
+    // годиться як сигнал «почалась нова навігація»: IP з'являлась і одразу
+    // зникала, щойно на сторінці підвантажувався будь-який iframe. did-navigate
+    // «emitted for a MAIN FRAME navigation» (Electron docs) — саме той сигнал.
+    wc.on('did-navigate', () => { this.exitIp = null; });
 
     wc.on('did-finish-load', () => {
       if (failedThisLoad) return;
