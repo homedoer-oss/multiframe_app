@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PROFILE_COLOR_PALETTE } from '@shared/constants';
 import type { AssignResult } from '@shared/ipc';
@@ -65,6 +65,24 @@ export function ProfileManagerPanel({
   const [proxyTest, setProxyTest] = useState<Record<string, { quality: ProxyQuality } | { error: true } | undefined>>({});
   const [proxyTesting, setProxyTesting] = useState<string | null>(null);
   const [proxyAssignMsg, setProxyAssignMsg] = useState<Record<string, AssignResult>>({});
+
+  // 2026-08-04 — знайдено користувачем: «Reload now» мовчки нічого не
+  // робив для профілю без жодної відкритої вкладки (той самий клас багу,
+  // що й DevTools/Find без активної вкладки, розділ 9 STATE.md — тут ще й
+  // на профіль, налаштований лише через Settings, до першої навігації
+  // адресним рядком узагалі не було з чого перезавантажувати). Підписка
+  // на frame:state, як і Workspace.tsx, лише для прапорця «є вкладка».
+  const [hasTab, setHasTab] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    // Стан на момент монтування: Settings могли відкрити вже ПІСЛЯ того,
+    // як вкладка з'явилась і встигла стабілізуватись — жодної подальшої
+    // frame:state події для неї тоді не буде, підписка нижче її не зловить.
+    void window.multiframe.invoke('workspace:tabPresence', undefined)
+      .then((snapshot) => setHasTab((prev) => ({ ...snapshot, ...prev })));
+    return window.multiframe.on('frame:state', (state) => {
+      setHasTab((prev) => ({ ...prev, [state.profileId]: state.tabs.length > 0 }));
+    });
+  }, []);
 
   const draftFor = (p: Profile): ProxyDraft =>
     proxyDrafts[p.id] ?? {
@@ -439,8 +457,10 @@ export function ProfileManagerPanel({
                   {assignMsg && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, marginTop: 8,
                       color: assignMsg.ok ? 'var(--success)' : 'var(--error)' }}>
-                      {assignMsg.ok ? t('profiles.proxy.assigned') : t(`assign.refused.${assignMsg.reason}`)}
-                      {assignMsg.ok && (
+                      {assignMsg.ok
+                        ? (hasTab[p.id] ? t('profiles.proxy.assigned') : t('profiles.proxy.assignedNoTab'))
+                        : t(`assign.refused.${assignMsg.reason}`)}
+                      {assignMsg.ok && hasTab[p.id] && (
                         <button
                           onClick={() => void window.multiframe.invoke('frame:reload', { profileId: p.id })}
                           style={{ fontSize: 11, padding: '2px 8px' }}

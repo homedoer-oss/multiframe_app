@@ -159,5 +159,6 @@
   "profiles.proxy.testFailed": "Could not connect through this proxy.",
   "profiles.proxy.assign": "Assign to this profile",
   "profiles.proxy.assigned": "Assigned. Reload the tab for the change to take effect.",
+  "profiles.proxy.assignedNoTab": "Assigned. This profile has no open page yet — the proxy will be used as soon as you enter an address in its frame.",
   "profiles.proxy.reloadNow": "Reload now"
 }

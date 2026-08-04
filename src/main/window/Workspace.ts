@@ -65,6 +65,18 @@ export class Workspace {
     this.strategy = strategy;
   }
 
+  /**
+   * 2026-08-04 — ProfileManagerPanel потребує це на МОМЕНТ монтування
+   * (Settings могли відкрити вже ПІСЛЯ того, як вкладка з'явилась і жодних
+   * подальших `frame:state` не буде) — підписка на самі події не покриває
+   * цей випадок, тому окремий разовий запит поточного стану.
+   */
+  tabPresence(): Record<string, boolean> {
+    const result: Record<string, boolean> = {};
+    for (const [id, frame] of this.frames) result[id] = frame.activeWebContents() !== null;
+    return result;
+  }
+
   profileOf(profileId: string): Profile | undefined {
     return this.frames.get(profileId)?.profile;
   }

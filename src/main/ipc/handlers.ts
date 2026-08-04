@@ -79,6 +79,8 @@ export function registerIpc(
       workspace().setAllFramesVisible(visible);
     },
 
+    'workspace:tabPresence': () => workspace().tabPresence(),
+
     'frame:navigate': ({ profileId, url }) => {
       workspace().withFrame(profileId, (f) => f.navigate(url));
     },

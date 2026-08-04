@@ -67,6 +67,8 @@ export interface IpcInvokeMap {
    * модальне вікно оболонки без цього виклику опинилося б під ними.
    */
   'workspace:setFramesVisible': { req: { visible: boolean }; res: void };
+  /** 2026-08-04 — чи має профіль зараз відкриту вкладку (для «Reload now» у ProfileManagerPanel). */
+  'workspace:tabPresence': { req: void; res: Record<string, boolean> };
 
   'frame:navigate': { req: { profileId: string; url: string }; res: void };
   'frame:goBack': { req: { profileId: string }; res: void };
@@ -163,7 +165,7 @@ export type IpcEventChannel = keyof IpcEventMap;
 export const IPC_INVOKE_CHANNELS = [
   'app:getSettings', 'app:setSettings', 'app:hasPreviousSession',
   'workspace:launch', 'workspace:close', 'workspace:setCellRects', 'workspace:maximizeFrame',
-  'workspace:setFramesVisible',
+  'workspace:setFramesVisible', 'workspace:tabPresence',
   'frame:navigate', 'frame:goBack', 'frame:goForward', 'frame:reload', 'frame:stop', 'frame:setZoom',
   'frame:setPersistSession',
   'frame:newTab', 'frame:closeTab', 'frame:activateTab', 'frame:openDevTools',
