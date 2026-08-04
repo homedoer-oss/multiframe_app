@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "verify:addresses": "node scripts/verify-addresses.mjs",
     "verify:i18n": "node scripts/verify-i18n.mjs",
-    "verify": "npm run verify:addresses && npm run verify:i18n && npm run verify:patches && npm run verify:backup && npm run verify:cdp && npm run verify:hotkeys && npm run verify:geoip && npm run verify:update-config",
+    "verify": "npm run verify:addresses && npm run verify:i18n && npm run verify:patches && npm run verify:backup && npm run verify:cdp && npm run verify:hotkeys && npm run verify:geoip && npm run verify:update-config && npm run verify:errors",
     "dist": "npm run build && electron-builder --win --publish never",
     "dist:publish": "npm run build && electron-builder --win --publish always",
     "postinstall": "electron-builder install-app-deps",
@@ -22,6 +22,7 @@
     "verify:hotkeys": "node --experimental-transform-types scripts/verify-hotkeys.mts",
     "verify:geoip": "node --experimental-transform-types scripts/verify-geoip.mts",
     "verify:update-config": "node --experimental-transform-types scripts/verify-update-config.mts",
+    "verify:errors": "node --experimental-transform-types scripts/verify-error-classification.mts",
     "test:e2e": "npm run build && playwright test"
   },
   "dependencies": {
