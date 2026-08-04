@@ -15,6 +15,7 @@
   "frame.address": "Адреса",
   "frame.maximize": "Розгорнути фрейм",
   "frame.restore": "Повернути сітку",
+  "frame.exitIp": "Поточна вихідна IP: {ip}",
   "proxy.direct": "Без проксі",
   "proxy.https": "HTTPS-проксі",
   "proxy.socks5": "SOCKS5",

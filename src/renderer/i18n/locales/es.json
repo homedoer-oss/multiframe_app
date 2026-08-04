@@ -15,6 +15,7 @@
   "frame.address": "Dirección",
   "frame.maximize": "Maximizar el marco",
   "frame.restore": "Restaurar la cuadrícula",
+  "frame.exitIp": "IP de salida actual: {ip}",
   "proxy.direct": "Sin proxy",
   "proxy.https": "Proxy HTTPS",
   "proxy.socks5": "SOCKS5",

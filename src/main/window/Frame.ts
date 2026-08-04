@@ -6,6 +6,7 @@ import { log } from '../logging/logger';
 import { partitionFor, sessionFor } from '../profile/ProfileManager';
 import { CdpSession } from '../cdp/CdpSession';
 import { applyIdentity } from '../identity/emulation';
+import { DEFAULT_PROBE, extractExitIp } from '../proxy/checker';
 import { classifyFailure } from './errors';
 
 const HIDDEN: CellRect = { x: 0, y: 0, width: 0, height: 0 };
@@ -137,7 +138,13 @@ export class Frame {
     // за іншою адресою знову дає did-finish-load шанс на 'ready'.
     let failedThisLoad = false;
 
-    wc.on('did-start-loading', () => { failedThisLoad = false; entry.loading = true; this.push({ kind: 'loading' }); });
+    wc.on('did-start-loading', () => {
+      failedThisLoad = false;
+      // Не показувати IP попередньої навігації, поки не підтверджено нову.
+      this.exitIp = null;
+      entry.loading = true;
+      this.push({ kind: 'loading' });
+    });
     wc.on('did-stop-loading', () => { entry.loading = false; this.push(); });
     wc.on('page-title-updated', (_e, title) => { entry.title = title; this.push(); });
 
@@ -149,6 +156,7 @@ export class Frame {
       // Г-7 — зум per-origin, перевстановлюється на кожній навігації,
       // включно з початковою about:blank (нешкідливо, коштує один виклик).
       this.onTabReady?.();
+      void this.refreshExitIp();
     });
 
     // Ф-2.4 — помилка локалізується в оболонці й показується ТІЛЬКИ
@@ -263,10 +271,44 @@ export class Frame {
 
   private pushError(error: FrameErrorKind, detail: string, url: string, code: string): void {
     this.setViewVisible(false);
+    // Невідомо, чи запит цієї навігації взагалі кудись дійшов — застаріла
+    // адреса з попереднього успішного завантаження вводила б в оману
+    // (виглядала б підтвердженням захисту там, де його не було).
+    this.exitIp = null;
     this.push({ kind: 'error', error, code, detail, url });
   }
 
   private lastStatus: FrameState['status'] = { kind: 'idle' };
+  private exitIp: string | null = null;
+
+  /**
+   * Поточна вихідна IP-адреса ЖИВОЇ сесії — не окрема перевірка конфігурації
+   * (те робить proxy:evaluate, checker.ts, з main-процесу напряму), а запит
+   * через `session.fetch()` ТІЄЇ Ж сесії, якою реально користуються вкладки:
+   * той самий шлях, ті самі proxyRules, включно з relay для SOCKS5+пароль.
+   * `session.resolveProxy()` звертається до Chromium за живим станом, тож
+   * не має проблеми зі «застарілим» this.profile.proxy.mode (той лишається
+   * знімком з моменту створення Frame — не оновлюється при перепризначенні
+   * проксі вже відкритому фрейму, розділ 9 STATE.md, 2026-08-04).
+   */
+  private async refreshExitIp(): Promise<void> {
+    const ses = sessionFor(this.profile);
+    const echoUrl = `https://${DEFAULT_PROBE.echoHost}${DEFAULT_PROBE.echoPath}`;
+    try {
+      const via = await ses.resolveProxy(echoUrl);
+      if (via.trim().toUpperCase() === 'DIRECT') {
+        this.exitIp = null;
+        this.push();
+        return;
+      }
+      const res = await ses.fetch(echoUrl, { signal: AbortSignal.timeout(DEFAULT_PROBE.timeoutMs) });
+      this.exitIp = extractExitIp(await res.text());
+    } catch (err) {
+      log.warn({ code: 'frame.exit_ip_check_failed', profileId: this.profile.id, error: String(err) });
+      this.exitIp = null;
+    }
+    this.push();
+  }
 
   push(status?: FrameState['status']): void {
     if (status) this.lastStatus = status;
@@ -280,6 +322,7 @@ export class Frame {
       canGoForward: wc?.navigationHistory.canGoForward() ?? false,
       currentUrl: wc?.getURL() ?? '',
       userZoom: this.profile.userZoom,
+      exitIp: this.exitIp,
     });
   }
 

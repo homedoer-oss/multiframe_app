@@ -15,6 +15,7 @@
   "frame.address": "Adresse",
   "frame.maximize": "Frame maximieren",
   "frame.restore": "Raster wiederherstellen",
+  "frame.exitIp": "Aktuelle Exit-IP: {ip}",
   "proxy.direct": "Ohne Proxy",
   "proxy.https": "HTTPS-Proxy",
   "proxy.socks5": "SOCKS5",

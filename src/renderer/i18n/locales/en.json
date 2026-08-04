@@ -15,6 +15,7 @@
   "frame.address": "Address",
   "frame.maximize": "Maximize frame",
   "frame.restore": "Restore grid",
+  "frame.exitIp": "Current exit IP: {ip}",
   "proxy.direct": "Direct",
   "proxy.https": "HTTPS proxy",
   "proxy.socks5": "SOCKS5",

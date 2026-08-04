@@ -98,7 +98,19 @@ export function FramePlaceholder({
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px',
         background: 'var(--surface)', borderBottom: `2px solid ${profile.color}` }}>
-        <span style={{ fontSize: 12, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>{profile.name}</span>
+        <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>{profile.name}</span>
+          {/* Ф-3 — лише коли профіль реально йде через проксі (не 'direct'):
+              exitIp приходить від Frame.refreshExitIp() (main), який сам
+              звіряється через session.resolveProxy() з живою сесією, тож
+              тут нема окремої перевірки profile.proxy.mode. */}
+          {state?.exitIp && (
+            <span style={{ fontSize: 10, color: 'var(--text-dim)', opacity: 0.7, whiteSpace: 'nowrap' }}
+              title={t('frame.exitIp', { ip: state.exitIp })}>
+              {state.exitIp}
+            </span>
+          )}
+        </span>
 
         <button style={btn} disabled={!state?.canGoBack} title={t('frame.back')}
           onClick={() => void window.multiframe.invoke('frame:goBack', { profileId: id })}>←</button>
