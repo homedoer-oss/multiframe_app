@@ -364,6 +364,11 @@ export class Workspace {
     this.frames.get(profileId)?.reapplyIdentity(identity);
   }
 
+  /** 2026-08-05 — синхронізує знімок профілю живого фрейма (Frame.syncProfile()) після будь-якого updateProfile(), що його стосується. */
+  syncProfile(profileId: string, patch: Partial<Profile>): void {
+    this.frames.get(profileId)?.syncProfile(patch);
+  }
+
   /** 2026-08-05 — швидкий редактор проксі біля адресного рядка (FramePlaceholder.tsx): per-frame, не workspace-wide. */
   setToolbarOverlayOpen(profileId: string, open: boolean): void {
     this.frames.get(profileId)?.setToolbarOverlayOpen(open);

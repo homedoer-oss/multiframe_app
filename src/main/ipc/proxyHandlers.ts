@@ -83,6 +83,14 @@ export function buildProxyHandlers(
       // Session, тож це саме той Session, яким користується активний Frame.
       await applyProxy(updated, sessionFor(updated));
 
+      // 2026-08-05 — без цього installProxyAuthHandler() (index.ts) і далі
+      // читав би СТАРИЙ логін/пароль (чи їхню відсутність) із застряглого
+      // знімку `frame.profile` при події `login` — CONNECT-тунель до
+      // HTTPS/SOCKS5-проксі з авторизацією провалювався б з ERR_TUNNEL_
+      // CONNECTION_FAILED, попри повністю справний проксі (Frame.ts,
+      // syncProfile()).
+      getWorkspace()?.syncProfile(profileId, { proxy: updated.proxy, exitCountry, identity });
+
       log.info({ code: 'proxy.assigned', profileId, mode: config.mode, class: config.class, exitCountry });
       return { ok: true };
     },

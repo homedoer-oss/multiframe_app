@@ -324,6 +324,31 @@ export class Frame {
     });
   }
 
+  /**
+   * 2026-08-05 — знайдено користувачем (третій випадок того самого класу
+   * бага цього тижня, після userZoom і identity): `proxy:assign` на вже
+   * ВІДКРИТОМУ фреймі оновлював `session.setProxy()` (Ф-3.6) коректно, але
+   * НЕ синхронізував `frame.profile.proxy` — а саме ЦЕЙ знімок читає
+   * `installProxyAuthHandler()` (`ownerOf(webContents)` → `workspace
+   * .profileOf()` → `frame.profile`, index.ts) у обробнику події `login`
+   * для HTTPS/SOCKS5-проксі з паролем. Якщо фрейм створено ДО того, як
+   * проксі отримав логін/пароль (типовий випадок — профіль стартує
+   * `direct`), стара копія мала `proxy.username === undefined`, обробник
+   * тихо виходив без виклику `callback()` — Chromium не міг завершити
+   * CONNECT-тунель, і сторінка падала з `ERR_TUNNEL_CONNECTION_FAILED`
+   * (-111), попри те що сам проксі був справним (Test проходив: той
+   * шлях — окремий, через checker.ts, до frame.profile не звертається).
+   * Перемикання «Save session» «лікувало» це тим самим побічним ефектом,
+   * що й для identity, — recreateFrame() будує Frame зі свіжим профілем.
+   *
+   * Загальний метод замість чергового вузького поля: те саме `proxy`
+   * читається й `Frame.push()` не читає, а WebRTC/Client-Hints-подібних
+   * місць, де знадобиться свіжий знімок, з часом побільшає.
+   */
+  syncProfile(patch: Partial<Profile>): void {
+    Object.assign(this.profile, patch);
+  }
+
   private activeEntry(): TabEntry | undefined {
     return this.activeTabId ? this.tabs.get(this.activeTabId) : undefined;
   }
