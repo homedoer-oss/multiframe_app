@@ -37,12 +37,29 @@ function presetFor(presetId: string): (typeof UA_PRESETS)[number] {
   return UA_PRESETS.find((p) => p.id === presetId) ?? (UA_PRESETS[0] as (typeof UA_PRESETS)[number]);
 }
 
-/** 2026-08-05 — presetId обирає бренд (Chrome/Edge/Opera); версія рушія завжди фактична, не з пресету. */
-export function buildUserAgent(presetId: string = UA_PRESETS[0]!.id): string {
-  const suffix = presetFor(presetId).uaSuffix.replace('{major}', majorVersion());
+/**
+ * 2026-08-05 — запит користувача: 2-3 останні версії на пресет, не одна
+ * зафіксована. `versionOffset` — на скільки мажорних версій НАЗАД від
+ * фактичного рушія (0 = точний збіг). Свідомо лише НАЗАД, ніколи вперед:
+ * старіша заявлена версія при новішому рушії — типова, звична ситуація
+ * (реальні користувачі відстають з оновленнями); заявлена НОВІША версія
+ * за фактичний рушій — неможлива комбінація й одразу видима (⚠️ нижче).
+ * Не менше 1 — версія 0 чи від'ємна миттєво впадала б в очі.
+ */
+function effectiveMajor(versionOffset: number): number {
+  return Math.max(1, Number(majorVersion()) - versionOffset);
+}
+
+/**
+ * «Авто» завжди 0 (найбезпечніший, точний збіг з рушієм) — зсув лишається
+ * винятково ручним, свідомим вибором користувача (ProfileManagerPanel).
+ */
+export function buildUserAgent(presetId: string = UA_PRESETS[0]!.id, versionOffset = 0): string {
+  const major = effectiveMajor(versionOffset);
+  const suffix = presetFor(presetId).uaSuffix.replace('{major}', String(major));
   return (
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-    `Chrome/${majorVersion()}.0.0.0 Safari/537.36${suffix}`
+    `Chrome/${major}.0.0.0 Safari/537.36${suffix}`
   );
 }
 
@@ -60,9 +77,14 @@ export function buildMetadata(
   platformVersion: string,
   architecture: string,
   presetId: string = UA_PRESETS[0]!.id,
+  versionOffset = 0,
 ): UserAgentMetadata {
-  const major = majorVersion();
-  const full = chromiumVersion();
+  const majorNum = effectiveMajor(versionOffset);
+  const major = String(majorNum);
+  // Зі зсувом fullVersion теж синтетичний ("128.0.0.0"), а не справжній
+  // збірковий рядок рушія (напр. "130.0.6723.191") — інакше Client Hints
+  // сам собі суперечив би (мажор 128, повна версія від 130-го рушія).
+  const full = versionOffset === 0 ? chromiumVersion() : `${major}.0.0.0`;
   const grease = greaseBrand(major);
   // Ф-4.4 — той самий бренд, що й у UA-рядку (buildUserAgent): Edge/Opera
   // з брендом "Google Chrome" у Client Hints — саме та розбіжність,

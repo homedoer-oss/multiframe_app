@@ -171,5 +171,8 @@
   "profiles.ua.auto": "Automatique",
   "profiles.ua.manual": "Manuel",
   "profiles.ua.changed": "Modifié. Rechargez l'onglet pour que le changement prenne effet.",
-  "profiles.ua.changedNoTab": "Modifié. Ce profil n'a encore aucune page ouverte — le nouveau User-Agent sera utilisé dès que vous saisirez une adresse dans son cadre."
+  "profiles.ua.changedNoTab": "Modifié. Ce profil n'a encore aucune page ouverte — le nouveau User-Agent sera utilisé dès que vous saisirez une adresse dans son cadre.",
+  "profiles.ua.offset.0": "Dernière version",
+  "profiles.ua.offset.1": "Version précédente",
+  "profiles.ua.offset.2": "2 versions en arrière"
 }

@@ -17,6 +17,7 @@ export const identitySchema = z.object({
   userAgent: z.string(),
   /** 2026-08-05 — .default() задля назад сумісності з профілями, збереженими до цього поля. */
   uaPresetId: z.string().default('chrome'),
+  uaVersionOffset: z.number().int().min(0).default(0),
   platform: z.string(),
   platformVersion: z.string(),
   architecture: z.string(),

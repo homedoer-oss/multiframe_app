@@ -62,10 +62,13 @@ export function buildIdentityHandlers(getWorkspace: () => Workspace | null): Han
       const { ws, profile } = resolve(req.profileId);
       const identity = req.mode === 'auto'
         ? withRandomUaPreset(profile.identity)
-        : withUaPreset(profile.identity, req.presetId);
+        : withUaPreset(profile.identity, req.presetId, req.versionOffset);
       const updated = updateProfile(req.profileId, { identity, uaMode: req.mode });
       ws.reapplyIdentity(req.profileId, updated.identity);
-      log.info({ code: 'identity.ua_changed', profileId: req.profileId, mode: req.mode, uaPresetId: updated.identity.uaPresetId });
+      log.info({
+        code: 'identity.ua_changed', profileId: req.profileId, mode: req.mode,
+        uaPresetId: updated.identity.uaPresetId, uaVersionOffset: updated.identity.uaVersionOffset,
+      });
       return updated;
     },
 

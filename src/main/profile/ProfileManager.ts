@@ -96,7 +96,9 @@ export function duplicateProfile(id: string): Profile {
   // свідоме рішення користувача, не випадкова властивість fingerprint,
   // тому копіюється разом із режимом 'manual'; 'auto' лишає свіжий
   // випадковий пресет із createIdentity() вище.
-  if (source.uaMode === 'manual') freshIdentity = withUaPreset(freshIdentity, source.identity.uaPresetId);
+  if (source.uaMode === 'manual') {
+    freshIdentity = withUaPreset(freshIdentity, source.identity.uaPresetId, source.identity.uaVersionOffset);
+  }
 
   const copy: Profile = {
     ...source,

@@ -42,6 +42,8 @@ export interface Identity {
   userAgent: string;
   /** 2026-08-05 — id із UA_PRESETS (constants.ts): чий Client Hints-бренд відповідає userAgent. */
   uaPresetId: string;
+  /** 2026-08-05 — на скільки мажорних версій НАЗАД від фактичного рушія (UA_VERSION_OFFSETS); 0 = точний збіг. */
+  uaVersionOffset: number;
   platform: string;
   platformVersion: string;
   architecture: string;

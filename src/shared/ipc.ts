@@ -123,9 +123,16 @@ export interface IpcInvokeMap {
 
   /** Ф-4.9 — самоперевірка профілю: невідповідності, а не «бал». */
   'identity:selfCheck': { req: { profileId: string }; res: SelfCheckReport };
-  /** 2026-08-05 — ручний/автоматичний вибір User-Agent зі списку UA_PRESETS (constants.ts). */
+  /**
+   * 2026-08-05 — ручний/автоматичний вибір User-Agent зі списку UA_PRESETS
+   * (constants.ts). versionOffset — UA_VERSION_OFFSETS, 0/1/2 мажорних
+   * версій назад від фактичного рушія (запит користувача того ж дня —
+   * 2-3 останні версії на пресет, не одна зафіксована).
+   */
   'identity:setUserAgent': {
-    req: { profileId: string; mode: 'auto' } | { profileId: string; mode: 'manual'; presetId: string };
+    req:
+      | { profileId: string; mode: 'auto' }
+      | { profileId: string; mode: 'manual'; presetId: string; versionOffset: number };
     res: Profile;
   };
 

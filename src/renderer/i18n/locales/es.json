@@ -171,5 +171,8 @@
   "profiles.ua.auto": "Automático",
   "profiles.ua.manual": "Manual",
   "profiles.ua.changed": "Cambiado. Recargue la pestaña para que el cambio surta efecto.",
-  "profiles.ua.changedNoTab": "Cambiado. Este perfil aún no tiene ninguna página abierta — el nuevo User-Agent se usará en cuanto introduzca una dirección en su marco."
+  "profiles.ua.changedNoTab": "Cambiado. Este perfil aún no tiene ninguna página abierta — el nuevo User-Agent se usará en cuanto introduzca una dirección en su marco.",
+  "profiles.ua.offset.0": "Última versión",
+  "profiles.ua.offset.1": "Versión anterior",
+  "profiles.ua.offset.2": "2 versiones atrás"
 }

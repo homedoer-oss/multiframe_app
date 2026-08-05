@@ -47,6 +47,16 @@ export const UA_PRESETS: readonly UaPreset[] = [
   { id: 'opera', label: 'Opera (Windows)', brand: 'Opera', uaSuffix: ' OPR/{major}.0.0.0' },
 ];
 
+/**
+ * 2026-08-05 — запит користувача: 2-3 останні версії на кожен пресет, не
+ * одна зафіксована. Зсув ЛИШЕ назад від фактичної версії рушія (0 —
+ * точний збіг, найбезпечніший — саме тому «авто» завжди лишається на 0,
+ * `profile/identity.ts`). Конкретні номери версій обчислюються в main
+ * (`clientHints.ts`, `process.versions.chrome`) — тут лише самі зсуви,
+ * підписи в UI — `profiles.ua.offset.*` (i18n).
+ */
+export const UA_VERSION_OFFSETS: readonly number[] = [0, 1, 2];
+
 export type DonationNetwork = 'BTC' | 'ERC-20' | 'TRC-20' | 'SOL';
 
 export interface DonationAddress {

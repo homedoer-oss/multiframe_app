@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PROFILE_COLOR_PALETTE, UA_PRESETS } from '@shared/constants';
+import { PROFILE_COLOR_PALETTE, UA_PRESETS, UA_VERSION_OFFSETS } from '@shared/constants';
 import type { AssignResult } from '@shared/ipc';
 import type { Profile, ProxyConfig, ProxyMode, ProxyQuality } from '@shared/types';
 import { QualityCard } from '../components/QualityCard';
@@ -99,16 +99,16 @@ export function ProfileManagerPanel({
         'identity:setUserAgent',
         mode === 'auto'
           ? { profileId: p.id, mode: 'auto' }
-          : { profileId: p.id, mode: 'manual', presetId: p.identity.uaPresetId },
+          : { profileId: p.id, mode: 'manual', presetId: p.identity.uaPresetId, versionOffset: p.identity.uaVersionOffset },
       );
       setUaAssignMsg((m) => ({ ...m, [p.id]: true }));
       await refresh();
     });
   };
 
-  const setUaPreset = (p: Profile, presetId: string): void => {
+  const setUaPreset = (p: Profile, presetId: string, versionOffset: number): void => {
     void withBusy(p.id, async () => {
-      await window.multiframe.invoke('identity:setUserAgent', { profileId: p.id, mode: 'manual', presetId });
+      await window.multiframe.invoke('identity:setUserAgent', { profileId: p.id, mode: 'manual', presetId, versionOffset });
       setUaAssignMsg((m) => ({ ...m, [p.id]: true }));
       await refresh();
     });
@@ -531,12 +531,26 @@ export function ProfileManagerPanel({
                     <select
                       value={p.identity.uaPresetId}
                       disabled={busyId === p.id}
-                      onChange={(e) => setUaPreset(p, e.target.value)}
+                      onChange={(e) => setUaPreset(p, e.target.value, p.identity.uaVersionOffset)}
                       style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)',
                         borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
                     >
                       {UA_PRESETS.map((preset) => (
                         <option key={preset.id} value={preset.id}>{preset.label}</option>
+                      ))}
+                    </select>
+                  )}
+
+                  {p.uaMode === 'manual' && (
+                    <select
+                      value={p.identity.uaVersionOffset}
+                      disabled={busyId === p.id}
+                      onChange={(e) => setUaPreset(p, p.identity.uaPresetId, Number(e.target.value))}
+                      style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)',
+                        borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                    >
+                      {UA_VERSION_OFFSETS.map((offset) => (
+                        <option key={offset} value={offset}>{t(`profiles.ua.offset.${offset}`)}</option>
                       ))}
                     </select>
                   )}
