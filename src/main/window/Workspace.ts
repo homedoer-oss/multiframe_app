@@ -364,6 +364,11 @@ export class Workspace {
     this.frames.get(profileId)?.reapplyIdentity(identity);
   }
 
+  /** 2026-08-05 — швидкий редактор проксі біля адресного рядка (FramePlaceholder.tsx): per-frame, не workspace-wide. */
+  setToolbarOverlayOpen(profileId: string, open: boolean): void {
+    this.frames.get(profileId)?.setToolbarOverlayOpen(open);
+  }
+
   /** Ф-11.6 / Ф-13.24 — зовнішні посилання лише в системному браузері. */
   static openExternal(url: string): void {
     if (!/^https:\/\//i.test(url)) {

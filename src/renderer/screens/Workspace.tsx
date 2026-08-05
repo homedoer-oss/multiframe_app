@@ -8,7 +8,14 @@ import { FramePlaceholder } from '../components/FramePlaceholder';
  * АРХ-7 — WebContentsView не є частиною DOM. React рендерить плейсхолдери,
  * вимірює їх і надсилає геометрію в main, який позиціонує реальні view.
  */
-export function Workspace({ profiles }: { profiles: Profile[]; settings: AppSettings }): JSX.Element {
+export function Workspace({
+  profiles, onProfilesChange,
+}: {
+  profiles: Profile[];
+  settings: AppSettings;
+  /** 2026-08-05 — ProxyEditor у FramePlaceholder.tsx оновлює профіль напряму з фрейма, не лише з Settings. */
+  onProfilesChange: (profiles: Profile[]) => void;
+}): JSX.Element {
   const { t } = useTranslation();
   const shape = gridShapeFor(profiles.length);
   const cellRefs = useRef(new Map<string, HTMLDivElement>());
@@ -96,6 +103,7 @@ export function Workspace({ profiles }: { profiles: Profile[]; settings: AppSett
           focused={focused === profile.id}
           onToggleMaximize={() => toggleMaximize(profile.id)}
           onFocus={() => focus(profile.id)}
+          onProfilesChange={onProfilesChange}
           registerCell={(el) => {
             if (el) cellRefs.current.set(profile.id, el);
             else cellRefs.current.delete(profile.id);

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { FrameState, Profile } from '@shared/types';
 import { TabBar } from './TabBar';
 import { FrameError } from './FrameError';
+import { ProxyEditor } from './ProxyEditor';
 
 interface Props {
   profile: Profile;
@@ -13,12 +14,14 @@ interface Props {
   onFocus: () => void;
   registerCell: (el: HTMLDivElement | null) => void;
   emptyLabel: string;
+  /** 2026-08-05 — ProxyEditor тут оновлює профіль напряму з фрейма, не лише з Settings. */
+  onProfilesChange: (profiles: Profile[]) => void;
 }
 
 const ZOOM_STEPS = [0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 2] as const;
 
 export function FramePlaceholder({
-  profile, state, maximized, focused, onToggleMaximize, onFocus, registerCell, emptyLabel,
+  profile, state, maximized, focused, onToggleMaximize, onFocus, registerCell, emptyLabel, onProfilesChange,
 }: Props): JSX.Element {
   const { t } = useTranslation();
   const [address, setAddress] = useState(profile.startUrl === 'about:blank' ? '' : profile.startUrl);
@@ -34,6 +37,27 @@ export function FramePlaceholder({
   // ховає view саме для цього випадку, інакше тут було б порожнє біле
   // вікно («біле вікно» з погляду користувача) замість статусу проксі.
   const isBlankIdle = hasTab && !error && state?.currentUrl === 'about:blank';
+
+  // Запит користувача 2026-08-05 — швидка зміна проксі біля адресного
+  // рядка, без відкриття Settings. Форма малюється оболонкою поверх ТІЛА
+  // комірки, тому main має сховати реальний WebContentsView на час, поки
+  // вона відкрита (§5.9 — view завжди над DOM оболонки) — per-frame,
+  // окремим прапорцем від Settings/Splash (Frame.setToolbarOverlayOpen()),
+  // інакше форма опинилась би ПІД сторінкою сайту.
+  const [proxyOpen, setProxyOpen] = useState(false);
+  const toggleProxyOpen = (): void => {
+    const next = !proxyOpen;
+    setProxyOpen(next);
+    void window.multiframe.invoke('frame:setToolbarOverlayOpen', { profileId: id, open: next });
+  };
+  // Закривається й ховає view автоматично, якщо профіль випав із сітки
+  // (розгортання іншого фрейму) — інакше прапорець лишився б застряглим у true.
+  useEffect(() => {
+    return () => void window.multiframe.invoke('frame:setToolbarOverlayOpen', { profileId: id, open: false }).catch(() => {});
+  }, [id]);
+  const refreshProfiles = async (): Promise<void> => {
+    onProfilesChange(await window.multiframe.invoke('profile:list', undefined));
+  };
 
   // Адресний рядок стежить за фактичною навігацією, доки користувач не редагує його.
   const [edited, setEdited] = useState(false);
@@ -87,7 +111,7 @@ export function FramePlaceholder({
       onMouseDown={onFocus}
       style={{
         display: 'flex', flexDirection: 'column', background: 'var(--bg)',
-        minWidth: 0, minHeight: 0,
+        minWidth: 0, minHeight: 0, position: 'relative',
         // Ф-1.9 / Ф-9.3 — янтарний зарезервований за станом «активний фрейм»
         outline: focused ? '2px solid var(--active)' : 'none',
         outlineOffset: -2,
@@ -156,10 +180,17 @@ export function FramePlaceholder({
           <button style={btn} onClick={() => stepZoom(1)}>+</button>
         </span>
 
-        {/* Ф-9.4 — режим мережі читається без кольору */}
-        <span style={{ fontSize: 11, color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
+        {/* Ф-9.4 — режим мережі читається без кольору. Запит користувача
+            2026-08-05 — клікабельна, відкриває швидкий редактор проксі
+            нижче, без відкриття загальних Settings. */}
+        <button
+          onClick={toggleProxyOpen}
+          title={t('profiles.proxy')}
+          style={{ ...btn, fontSize: 11, color: 'var(--text-dim)', whiteSpace: 'nowrap',
+            background: proxyOpen ? 'var(--surface)' : 'transparent' }}
+        >
           {t(`proxy.${profile.proxy.mode}`)}
-        </span>
+        </button>
 
         <button style={btn} onClick={onToggleMaximize} title={maximized ? t('frame.restore') : t('frame.maximize')}>
           {maximized ? '▣' : '▢'}
@@ -223,6 +254,24 @@ export function FramePlaceholder({
           )
         )}
       </div>
+
+      {proxyOpen && (
+        <div style={{
+          position: 'absolute', top: 40, right: 40, zIndex: 10,
+          width: 360, boxShadow: '0 4px 16px rgba(0,0,0,.4)', border: '1px solid var(--border)', borderRadius: 4,
+        }}>
+          <ProxyEditor
+            profile={profile}
+            hasTab={hasTab}
+            onChanged={async () => {
+              await refreshProfiles();
+              // Той самий стан, що й «Reload now» деінде — після успішного
+              // призначення видима зміна лише після перезавантаження, форма
+              // лишається відкритою, щоб користувач сам натиснув, коли готовий.
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

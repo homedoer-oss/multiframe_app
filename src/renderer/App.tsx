@@ -76,7 +76,7 @@ export function App({ initialSettings }: { initialSettings: AppSettings }): JSX.
           measureRect() комірок (АРХ-7) ніколи не заходить у зарезервовану
           зону, тож main ніколи не позиціонує сюди жоден фрейм. */}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <Workspace profiles={profiles} settings={settings} />
+        <Workspace profiles={profiles} settings={settings} onProfilesChange={setProfiles} />
       </div>
 
       <div data-testid="shell-footer" style={{

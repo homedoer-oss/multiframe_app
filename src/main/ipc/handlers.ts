@@ -100,6 +100,10 @@ export function registerIpc(
 
     'workspace:tabPresence': () => workspace().tabPresence(),
 
+    'frame:setToolbarOverlayOpen': ({ profileId, open }) => {
+      workspace().setToolbarOverlayOpen(profileId, open);
+    },
+
     'frame:navigate': ({ profileId, url }) => {
       workspace().withFrame(profileId, (f) => f.navigate(url));
     },

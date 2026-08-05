@@ -29,6 +29,8 @@ export class Frame {
   private activeTabId: string | null = null;
   private cell: CellRect = { ...HIDDEN };
   private visible = true;
+  /** 2026-08-05 — швидкий редактор проксі відкритий для цього фрейма (shouldShowActiveView()). */
+  private toolbarOverlayOpen = false;
   private lastFocusedAt = Date.now();
   /** Ф-1.5/НФ-1.5/НФ-1.3 — не null, доки фрейм присипаний: URL для wake(). */
   private sleepMemory: { url: string; active: boolean }[] | null = null;
@@ -258,11 +260,24 @@ export class Frame {
    * (саме так двічі цього дня — розділ 9 STATE.md).
    */
   private shouldShowActiveView(): boolean {
-    return this.visible && this.lastStatus.kind !== 'error' && !this.isBlankIdle();
+    return this.visible && this.lastStatus.kind !== 'error' && !this.isBlankIdle() && !this.toolbarOverlayOpen;
   }
 
   private syncViewVisibility(): void {
     this.activeEntry()?.view.setVisible(this.shouldShowActiveView());
+  }
+
+  /**
+   * 2026-08-05 — швидкий редактор проксі біля адресного рядка
+   * (FramePlaceholder.tsx) малюється оболонкою поверх ТІЛА комірки, тому
+   * потребує того самого приховування view, що й помилка/about:blank —
+   * інакше форма опинилась би ПІД реальним вмістом сторінки (§5.9).
+   * На відміну від `setVisible()` (оверлей на ВЕСЬ workspace, Settings/
+   * Splash), це per-frame прапорець — інші фрейми лишаються як були.
+   */
+  setToolbarOverlayOpen(open: boolean): void {
+    this.toolbarOverlayOpen = open;
+    this.syncViewVisibility();
   }
 
   navigate(url: string): void {

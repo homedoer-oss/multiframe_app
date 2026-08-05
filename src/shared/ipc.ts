@@ -71,6 +71,12 @@ export interface IpcInvokeMap {
   'workspace:setFramesVisible': { req: { visible: boolean }; res: void };
   /** 2026-08-04 — чи має профіль зараз відкриту вкладку (для «Reload now» у ProfileManagerPanel). */
   'workspace:tabPresence': { req: void; res: Record<string, boolean> };
+  /**
+   * 2026-08-05 — швидкий редактор проксі біля адресного рядка (ProxyEditor
+   * у FramePlaceholder.tsx). Той самий принцип, що й `workspace:setFramesVisible`
+   * (§5.9 — WebContentsView над DOM оболонки), але per-frame, не на весь workspace.
+   */
+  'frame:setToolbarOverlayOpen': { req: { profileId: string; open: boolean }; res: void };
 
   'frame:navigate': { req: { profileId: string; url: string }; res: void };
   'frame:goBack': { req: { profileId: string }; res: void };
@@ -179,7 +185,7 @@ export type IpcEventChannel = keyof IpcEventMap;
 export const IPC_INVOKE_CHANNELS = [
   'app:getSettings', 'app:setSettings', 'app:hasPreviousSession', 'app:getVersion',
   'workspace:launch', 'workspace:close', 'workspace:setCellRects', 'workspace:maximizeFrame',
-  'workspace:setFramesVisible', 'workspace:tabPresence',
+  'workspace:setFramesVisible', 'workspace:tabPresence', 'frame:setToolbarOverlayOpen',
   'frame:navigate', 'frame:goBack', 'frame:goForward', 'frame:reload', 'frame:stop', 'frame:setZoom',
   'frame:setPersistSession',
   'frame:newTab', 'frame:closeTab', 'frame:activateTab', 'frame:openDevTools',
