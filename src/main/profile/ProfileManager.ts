@@ -4,7 +4,7 @@ import type { Profile } from '@shared/types';
 import { PROFILE_COLOR_PALETTE } from '@shared/constants';
 import { loadConfig, updateConfig } from '../config/store';
 import { log } from '../logging/logger';
-import { createIdentity, retargetRegion } from './identity';
+import { createIdentity, retargetRegion, withUaPreset } from './identity';
 
 /**
  * АРХ-3 / Ф-5.1–5.3 — партиція визначає, чи переживають дані закриття застосунку.
@@ -40,6 +40,7 @@ export function createProfile(index: number): Profile {
     persistSession: false,
     proxy: { mode: 'direct', host: '', port: 0, hasPassword: false, class: 'manual' },
     identity: createIdentity(),
+    uaMode: 'auto',
     exitCountry: null,
     userZoom: 1,
     certificatePolicy: 'block',
@@ -89,13 +90,19 @@ export function duplicateProfile(id: string): Profile {
   // (проксі того самого джерела) копіюється — тож свіжу ідентичність
   // одразу ретаргетимо на той самий регіон, інакше timezone/locale
   // розійшлися б із уже відомою країною exit-IP (Ф-4.6).
-  const freshIdentity = createIdentity();
+  let freshIdentity = createIdentity();
+  if (source.exitCountry) freshIdentity = retargetRegion(freshIdentity, source.exitCountry);
+  // 2026-08-05 — ручний вибір UA (на відміну від решти ідентичності) —
+  // свідоме рішення користувача, не випадкова властивість fingerprint,
+  // тому копіюється разом із режимом 'manual'; 'auto' лишає свіжий
+  // випадковий пресет із createIdentity() вище.
+  if (source.uaMode === 'manual') freshIdentity = withUaPreset(freshIdentity, source.identity.uaPresetId);
 
   const copy: Profile = {
     ...source,
     id: randomUUID(),
     name: `${source.name} (копія)`,
-    identity: source.exitCountry ? retargetRegion(freshIdentity, source.exitCountry) : freshIdentity,
+    identity: freshIdentity,
     // Пароль не переноситься: він у safeStorage під ключем старого профілю.
     proxy: { ...source.proxy, hasPassword: false },
   };

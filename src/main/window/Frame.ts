@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { app, WebContentsView, type BaseWindow, type Input, type WebContents } from 'electron';
-import type { CellRect, FrameErrorKind, FrameState, Profile, Tab } from '@shared/types';
+import type { CellRect, FrameErrorKind, FrameState, Identity, Profile, Tab } from '@shared/types';
 import { log } from '../logging/logger';
 import { partitionFor, sessionFor } from '../profile/ProfileManager';
 import { CdpSession } from '../cdp/CdpSession';
@@ -288,6 +288,25 @@ export class Frame {
   activeWebContents(): WebContents | null {
     const entry = this.activeEntry();
     return entry && !entry.view.webContents.isDestroyed() ? entry.view.webContents : null;
+  }
+
+  /**
+   * 2026-08-05 — живе перезастосування ідентичності (зараз лише User-Agent,
+   * той самий шлях обслужив би й майбутні зміни інших полів) на вже
+   * відкритий фрейм. `this.profile.identity = identity` — та сама
+   * жива синхронізація знімка профілю, що й `Workspace.setUserZoom()`.
+   * CDP-виклики всередині `applyIdentity()` діють на МАЙБУТНІ навігації
+   * (Page.addScriptToEvaluateOnNewDocument, Emulation.setUserAgentOverride) —
+   * navigator.userAgent уже завантаженої сторінки не зміниться без
+   * перезавантаження вкладки (той самий Ф-3.6-подібний патерн, що й проксі).
+   */
+  reapplyIdentity(identity: Identity): void {
+    this.profile.identity = identity;
+    const entry = this.activeEntry();
+    if (!entry || !entry.cdp.isAttached) return;
+    void applyIdentity(entry.cdp, identity).catch((err) => {
+      log.warn({ code: 'identity.reapply_failed', profileId: this.profile.id, error: String(err) });
+    });
   }
 
   private activeEntry(): TabEntry | undefined {

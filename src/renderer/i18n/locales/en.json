@@ -166,5 +166,10 @@
   "profiles.proxy.assign": "Assign to this profile",
   "profiles.proxy.assigned": "Assigned. Reload the tab for the change to take effect.",
   "profiles.proxy.assignedNoTab": "Assigned. This profile has no open page yet — the proxy will be used as soon as you enter an address in its frame.",
-  "profiles.proxy.reloadNow": "Reload now"
+  "profiles.proxy.reloadNow": "Reload now",
+  "profiles.userAgent": "User-Agent",
+  "profiles.ua.auto": "Automatic",
+  "profiles.ua.manual": "Manual",
+  "profiles.ua.changed": "Changed. Reload the tab for the change to take effect.",
+  "profiles.ua.changedNoTab": "Changed. This profile has no open page yet — the new User-Agent will be used as soon as you enter an address in its frame."
 }

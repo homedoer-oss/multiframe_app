@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PROFILE_COLOR_PALETTE } from '@shared/constants';
+import { PROFILE_COLOR_PALETTE, UA_PRESETS } from '@shared/constants';
 import type { AssignResult } from '@shared/ipc';
 import type { Profile, ProxyConfig, ProxyMode, ProxyQuality } from '@shared/types';
 import { QualityCard } from '../components/QualityCard';
@@ -83,6 +83,36 @@ export function ProfileManagerPanel({
       setHasTab((prev) => ({ ...prev, [state.profileId]: state.tabs.length > 0 }));
     });
   }, []);
+
+  // Запит користувача 2026-08-05 — автоматичний або ручний (зі списку
+  // популярних, UA_PRESETS) вибір User-Agent. reload-hint — той самий
+  // hasTab вище: без активної вкладки нема що перезавантажувати.
+  const [uaOpenId, setUaOpenId] = useState<string | null>(null);
+  const [uaAssignMsg, setUaAssignMsg] = useState<Record<string, true>>({});
+
+  const uaPresetLabel = (presetId: string): string =>
+    UA_PRESETS.find((preset) => preset.id === presetId)?.label ?? presetId;
+
+  const setUaMode = (p: Profile, mode: 'auto' | 'manual'): void => {
+    void withBusy(p.id, async () => {
+      await window.multiframe.invoke(
+        'identity:setUserAgent',
+        mode === 'auto'
+          ? { profileId: p.id, mode: 'auto' }
+          : { profileId: p.id, mode: 'manual', presetId: p.identity.uaPresetId },
+      );
+      setUaAssignMsg((m) => ({ ...m, [p.id]: true }));
+      await refresh();
+    });
+  };
+
+  const setUaPreset = (p: Profile, presetId: string): void => {
+    void withBusy(p.id, async () => {
+      await window.multiframe.invoke('identity:setUserAgent', { profileId: p.id, mode: 'manual', presetId });
+      setUaAssignMsg((m) => ({ ...m, [p.id]: true }));
+      await refresh();
+    });
+  };
 
   const draftFor = (p: Profile): ProxyDraft =>
     proxyDrafts[p.id] ?? {
@@ -371,6 +401,15 @@ export function ProfileManagerPanel({
               >
                 {t('profiles.proxy')} — {p.proxy.mode === 'direct' ? t('proxy.direct') : `${p.proxy.host}:${p.proxy.port}`}
               </button>
+              <button
+                disabled={busyId === p.id}
+                onClick={() => setUaOpenId(uaOpenId === p.id ? null : p.id)}
+                style={actionBtn}
+              >
+                {t('profiles.userAgent')} — {p.uaMode === 'auto'
+                  ? `${t('profiles.ua.auto')} (${uaPresetLabel(p.identity.uaPresetId)})`
+                  : uaPresetLabel(p.identity.uaPresetId)}
+              </button>
               <button disabled={busyId === p.id} onClick={() => remove(p)} style={{ ...actionBtn, background: 'var(--error)' }}>
                 {t('profiles.delete')}
               </button>
@@ -473,6 +512,55 @@ export function ProfileManagerPanel({
                 </div>
               );
             })()}
+
+            {uaOpenId === p.id && (
+              <div style={{ marginTop: 10, padding: 10, background: 'var(--bg)', borderRadius: 4 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                  <select
+                    value={p.uaMode}
+                    disabled={busyId === p.id}
+                    onChange={(e) => setUaMode(p, e.target.value as 'auto' | 'manual')}
+                    style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)',
+                      borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                  >
+                    <option value="auto">{t('profiles.ua.auto')}</option>
+                    <option value="manual">{t('profiles.ua.manual')}</option>
+                  </select>
+
+                  {p.uaMode === 'manual' && (
+                    <select
+                      value={p.identity.uaPresetId}
+                      disabled={busyId === p.id}
+                      onChange={(e) => setUaPreset(p, e.target.value)}
+                      style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)',
+                        borderRadius: 4, padding: '6px 8px', fontSize: 12 }}
+                    >
+                      {UA_PRESETS.map((preset) => (
+                        <option key={preset.id} value={preset.id}>{preset.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', wordBreak: 'break-all', marginBottom: 8 }}>
+                  {p.identity.userAgent}
+                </div>
+
+                {uaAssignMsg[p.id] && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--success)' }}>
+                    {hasTab[p.id] ? t('profiles.ua.changed') : t('profiles.ua.changedNoTab')}
+                    {hasTab[p.id] && (
+                      <button
+                        onClick={() => void window.multiframe.invoke('frame:reload', { profileId: p.id })}
+                        style={{ fontSize: 11, padding: '2px 8px' }}
+                      >
+                        {t('profiles.proxy.reloadNow')}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {backupOpenId === p.id && (
               <div style={{ marginTop: 10, padding: 10, background: 'var(--bg)', borderRadius: 4 }}>

@@ -123,6 +123,11 @@ export interface IpcInvokeMap {
 
   /** Ф-4.9 — самоперевірка профілю: невідповідності, а не «бал». */
   'identity:selfCheck': { req: { profileId: string }; res: SelfCheckReport };
+  /** 2026-08-05 — ручний/автоматичний вибір User-Agent зі списку UA_PRESETS (constants.ts). */
+  'identity:setUserAgent': {
+    req: { profileId: string; mode: 'auto' } | { profileId: string; mode: 'manual'; presetId: string };
+    res: Profile;
+  };
 
   /** RECOMMENDATIONS §6 — бекап профілю разом зі сховищем. */
   'profile:backup': { req: { profileId: string; password: string; includeProxyPassword: boolean }; res: string };
@@ -173,7 +178,7 @@ export const IPC_INVOKE_CHANNELS = [
   'frame:newTab', 'frame:closeTab', 'frame:activateTab', 'frame:openDevTools',
   'frame:findInPage', 'frame:stopFind', 'frame:focus',
   'profile:list', 'profile:update', 'profile:resetData',
-  'identity:selfCheck',
+  'identity:selfCheck', 'identity:setUserAgent',
   'profile:backup', 'profile:restoreBackup', 'profile:diskUsage', 'profile:clearCache', 'profile:duplicate', 'profile:delete',
   'proxy:evaluate', 'proxy:assign', 'proxy:importList',
   'proxy:discoverStart', 'proxy:discoverStop', 'proxy:providers',

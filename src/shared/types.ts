@@ -40,6 +40,8 @@ export interface ProxyQuality {
 /** Профіль ідентичності пристрою (Ф-4.1). */
 export interface Identity {
   userAgent: string;
+  /** 2026-08-05 — id із UA_PRESETS (constants.ts): чий Client Hints-бренд відповідає userAgent. */
+  uaPresetId: string;
   platform: string;
   platformVersion: string;
   architecture: string;
@@ -70,6 +72,8 @@ export interface Profile {
   persistSession: boolean;
   proxy: ProxyConfig;
   identity: Identity;
+  /** 2026-08-05 — 'auto': випадковий UA-пресет при кожній перегенерації ідентичності; 'manual': зафіксований користувачем. */
+  uaMode: 'auto' | 'manual';
   /** Ф-4.6 — країна exit-IP призначеного проксі; null, доки не визначено. */
   exitCountry: string | null;
   /** Ф-2.7 — користувацький зум, входить у формулу Ф-4.5. */

@@ -1,5 +1,5 @@
 import { shell, type BaseWindow, type WebContents, type WebContentsView } from 'electron';
-import type { CellRect, FrameState, Profile } from '@shared/types';
+import type { CellRect, FrameState, Identity, Profile } from '@shared/types';
 import { log } from '../logging/logger';
 import { saveLastSession, sessionFor, updateProfile } from '../profile/ProfileManager';
 import { installDownloadHandler } from '../download/downloads';
@@ -357,6 +357,11 @@ export class Workspace {
     frame.profile.userZoom = userZoom;
     this.emit('workspace:layoutInvalidated', { reason: 'resize' });
     frame.push();
+  }
+
+  /** 2026-08-05 — no-op, якщо профіль зараз не відкритий у робочій області (звичайний patch конфігурації, як і proxy:assign). */
+  reapplyIdentity(profileId: string, identity: Identity): void {
+    this.frames.get(profileId)?.reapplyIdentity(identity);
   }
 
   /** Ф-11.6 / Ф-13.24 — зовнішні посилання лише в системному браузері. */

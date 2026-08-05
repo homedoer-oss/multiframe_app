@@ -166,5 +166,10 @@
   "profiles.proxy.assign": "Diesem Profil zuweisen",
   "profiles.proxy.assigned": "Zugewiesen. Tab neu laden, damit die Änderung wirksam wird.",
   "profiles.proxy.assignedNoTab": "Zugewiesen. Dieses Profil hat noch keine geöffnete Seite — der Proxy wird verwendet, sobald Sie eine Adresse in seinem Rahmen eingeben.",
-  "profiles.proxy.reloadNow": "Jetzt neu laden"
+  "profiles.proxy.reloadNow": "Jetzt neu laden",
+  "profiles.userAgent": "User-Agent",
+  "profiles.ua.auto": "Automatisch",
+  "profiles.ua.manual": "Manuell",
+  "profiles.ua.changed": "Geändert. Tab neu laden, damit die Änderung wirksam wird.",
+  "profiles.ua.changedNoTab": "Geändert. Dieses Profil hat noch keine geöffnete Seite — der neue User-Agent wird verwendet, sobald Sie eine Adresse in seinem Rahmen eingeben."
 }

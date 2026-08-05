@@ -15,6 +15,8 @@ export const proxySchema = z.object({
 
 export const identitySchema = z.object({
   userAgent: z.string(),
+  /** 2026-08-05 — .default() задля назад сумісності з профілями, збереженими до цього поля. */
+  uaPresetId: z.string().default('chrome'),
   platform: z.string(),
   platformVersion: z.string(),
   architecture: z.string(),
@@ -41,6 +43,8 @@ export const profileSchema = z.object({
   persistSession: z.boolean().default(false),
   proxy: proxySchema,
   identity: identitySchema,
+  /** 2026-08-05 — .default() задля назад сумісності з профілями, збереженими до цього поля. */
+  uaMode: z.enum(['auto', 'manual']).default('auto'),
   /** Ф-4.6 — країна exit-IP призначеного проксі, визначена при `proxy:assign`. */
   exitCountry: z.string().nullable().default(null),
   userZoom: z.number().min(0.5).max(2).default(1),

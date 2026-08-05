@@ -10,14 +10,15 @@ import { COLLECT_SCRIPT, analyse } from '../identity/selfCheck';
 import { createBackup, readBackup, restoreStorage } from '../persistence/backup';
 import { clearCacheOnly, partitionDir, profileDiskUsage } from '../persistence/storage';
 import { getPassword, setPassword } from '../proxy/credentials';
-import { deleteProfile, duplicateProfile, listProfiles } from '../profile/ProfileManager';
+import { deleteProfile, duplicateProfile, listProfiles, updateProfile } from '../profile/ProfileManager';
+import { withRandomUaPreset, withUaPreset } from '../profile/identity';
 import { updateConfig } from '../config/store';
 import { log } from '../logging/logger';
 import type { Workspace } from '../window/Workspace';
 
 type Handlers = Pick<
   { [C in keyof IpcInvokeMap]: (p: IpcInvokeMap[C]['req']) => Promise<IpcInvokeMap[C]['res']> | IpcInvokeMap[C]['res'] },
-  | 'identity:selfCheck' | 'profile:backup' | 'profile:restoreBackup'
+  | 'identity:selfCheck' | 'identity:setUserAgent' | 'profile:backup' | 'profile:restoreBackup'
   | 'profile:diskUsage' | 'profile:clearCache' | 'profile:duplicate' | 'profile:delete'
 >;
 
@@ -48,6 +49,24 @@ export function buildIdentityHandlers(getWorkspace: () => Workspace | null): Han
       const report = analyse(profileId, profile.identity, collected, expectedTz);
       log.info({ code: 'identity.self_check', profileId, failed: report.failed, warned: report.warned });
       return report;
+    },
+
+    /**
+     * Запит користувача 2026-08-05 — ручний/автоматичний вибір User-Agent.
+     * Живе перезастосування на вже відкритий фрейм (ws.reapplyIdentity) —
+     * той самий Ф-3.6-подібний патерн, що й для проксі (2026-08-04): CDP
+     * діє на МАЙБУТНІ навігації, тому повний ефект — після перезавантаження
+     * вкладки, звідси renderer так само пропонує «Reload now».
+     */
+    'identity:setUserAgent': (req) => {
+      const { ws, profile } = resolve(req.profileId);
+      const identity = req.mode === 'auto'
+        ? withRandomUaPreset(profile.identity)
+        : withUaPreset(profile.identity, req.presetId);
+      const updated = updateProfile(req.profileId, { identity, uaMode: req.mode });
+      ws.reapplyIdentity(req.profileId, updated.identity);
+      log.info({ code: 'identity.ua_changed', profileId: req.profileId, mode: req.mode, uaPresetId: updated.identity.uaPresetId });
+      return updated;
     },
 
     'profile:backup': async ({ profileId, password, includeProxyPassword }) => {

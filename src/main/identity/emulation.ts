@@ -48,7 +48,7 @@ export async function applyIdentity(cdp: CdpSession, identity: Identity): Promis
     userAgent: identity.userAgent,
     acceptLanguage: identity.acceptLanguages,
     platform: 'Win32',
-    userAgentMetadata: buildMetadata(identity.platformVersion, identity.architecture),
+    userAgentMetadata: buildMetadata(identity.platformVersion, identity.architecture, identity.uaPresetId),
   });
 
   // Ф-4.6 — таймзона й локаль відповідають країні exit-IP.

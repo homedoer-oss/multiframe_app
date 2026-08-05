@@ -19,6 +19,34 @@ export const REPO_URL = 'https://github.com/homedoer-oss/multiframe_app';
 /** Ф-<нова> — перевірка нової версії (App.tsx, кнопка «Download» біля Settings). */
 export const RELEASES_URL = `${REPO_URL}/releases/latest`;
 
+/**
+ * Запит користувача 2026-08-05 — ручний вибір User-Agent зі списку
+ * популярних. Свідомо ЛИШЕ Chromium-сумісні браузери (рішення користувача):
+ * рушій під капотом завжди справжній Chromium (Electron), тож Firefox/Safari
+ * в UA був би миттєво виявним неспівпадінням з Client Hints і реальною
+ * поведінкою рушія (той самий принцип, що й версія Chrome у `clientHints.ts`
+ * — джерело істини для версії й тут, і там). Платформа — завжди Windows
+ * (як і `devices.ts`, DEVICE_PROFILES): підміна macOS/Linux з Windows-машини
+ * неможлива послідовно (шрифти, ANGLE/WebGL, аудіостек).
+ *
+ * `brand` — назва в Client Hints (Sec-CH-UA), має відповідати заявленому
+ * браузеру. `uaSuffix` — токен, що додається в кінець UA-рядка; `{major}`
+ * підставляється фактичною версією рушія (не довільним числом — та сама
+ * причина, що й в основному UA).
+ */
+export interface UaPreset {
+  readonly id: string;
+  readonly label: string;
+  readonly brand: string;
+  readonly uaSuffix: string;
+}
+
+export const UA_PRESETS: readonly UaPreset[] = [
+  { id: 'chrome', label: 'Google Chrome (Windows)', brand: 'Google Chrome', uaSuffix: '' },
+  { id: 'edge', label: 'Microsoft Edge (Windows)', brand: 'Microsoft Edge', uaSuffix: ' Edg/{major}.0.0.0' },
+  { id: 'opera', label: 'Opera (Windows)', brand: 'Opera', uaSuffix: ' OPR/{major}.0.0.0' },
+];
+
 export type DonationNetwork = 'BTC' | 'ERC-20' | 'TRC-20' | 'SOL';
 
 export interface DonationAddress {

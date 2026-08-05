@@ -166,5 +166,10 @@
   "profiles.proxy.assign": "Asignar a este perfil",
   "profiles.proxy.assigned": "Asignado. Recargue la pestaña para que el cambio surta efecto.",
   "profiles.proxy.assignedNoTab": "Asignado. Este perfil aún no tiene ninguna página abierta — el proxy se usará en cuanto introduzca una dirección en su marco.",
-  "profiles.proxy.reloadNow": "Recargar ahora"
+  "profiles.proxy.reloadNow": "Recargar ahora",
+  "profiles.userAgent": "User-Agent",
+  "profiles.ua.auto": "Automático",
+  "profiles.ua.manual": "Manual",
+  "profiles.ua.changed": "Cambiado. Recargue la pestaña para que el cambio surta efecto.",
+  "profiles.ua.changedNoTab": "Cambiado. Este perfil aún no tiene ninguna página abierta — el nuevo User-Agent se usará en cuanto introduzca una dirección en su marco."
 }
