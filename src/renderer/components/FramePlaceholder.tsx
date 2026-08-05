@@ -45,11 +45,36 @@ export function FramePlaceholder({
   // окремим прапорцем від Settings/Splash (Frame.setToolbarOverlayOpen()),
   // інакше форма опинилась би ПІД сторінкою сайту.
   const [proxyOpen, setProxyOpen] = useState(false);
-  const toggleProxyOpen = (): void => {
-    const next = !proxyOpen;
-    setProxyOpen(next);
-    void window.multiframe.invoke('frame:setToolbarOverlayOpen', { profileId: id, open: next });
+  const proxyPanelRef = useRef<HTMLDivElement | null>(null);
+  const proxyButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /**
+   * Знайдено користувачем 2026-08-05, того ж дня, що й сама фіча: якщо
+   * форму лишити відкритою (не закривати явно) й одразу перейти за новою
+   * адресою, `toolbarOverlayOpen` лишався `true` — реальний WebContentsView
+   * НОВОЇ вкладки теж ховався б, попри коректно застосований проксі
+   * (`shouldShowActiveView()`, Frame.ts). Виглядало це як «проксі не
+   * працює», а насправді сторінка була просто прихована. Перемикання
+   * «Save session» «допомагало» лише тому, що перестворює Frame з нуля —
+   * дефолтний `toolbarOverlayOpen = false`. Реальний фікс — не лишати
+   * прапорець застряглим: закривати панель і на навігації (go() нижче),
+   * і на кліку поза її межами.
+   */
+  const setProxyPanel = (open: boolean): void => {
+    setProxyOpen(open);
+    void window.multiframe.invoke('frame:setToolbarOverlayOpen', { profileId: id, open });
   };
+  useEffect(() => {
+    if (!proxyOpen) return;
+    const onDocMouseDown = (e: MouseEvent): void => {
+      const target = e.target as Node;
+      if (proxyPanelRef.current?.contains(target)) return;
+      if (proxyButtonRef.current?.contains(target)) return;
+      setProxyPanel(false);
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [proxyOpen]);
   // Закривається й ховає view автоматично, якщо профіль випав із сітки
   // (розгортання іншого фрейму) — інакше прапорець лишився б застряглим у true.
   useEffect(() => {
@@ -69,6 +94,7 @@ export function FramePlaceholder({
     if (!address.trim()) return;
     const url = /^https?:\/\//i.test(address) ? address : `https://${address}`;
     setEdited(false);
+    if (proxyOpen) setProxyPanel(false);
     void window.multiframe.invoke('frame:navigate', { profileId: id, url });
   };
 
@@ -184,7 +210,8 @@ export function FramePlaceholder({
             2026-08-05 — клікабельна, відкриває швидкий редактор проксі
             нижче, без відкриття загальних Settings. */}
         <button
-          onClick={toggleProxyOpen}
+          ref={proxyButtonRef}
+          onClick={() => setProxyPanel(!proxyOpen)}
           title={t('profiles.proxy')}
           style={{ ...btn, fontSize: 11, color: 'var(--text-dim)', whiteSpace: 'nowrap',
             background: proxyOpen ? 'var(--surface)' : 'transparent' }}
@@ -256,7 +283,7 @@ export function FramePlaceholder({
       </div>
 
       {proxyOpen && (
-        <div style={{
+        <div ref={proxyPanelRef} style={{
           position: 'absolute', top: 40, right: 40, zIndex: 10,
           width: 360, boxShadow: '0 4px 16px rgba(0,0,0,.4)', border: '1px solid var(--border)', borderRadius: 4,
         }}>
